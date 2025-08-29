@@ -7,19 +7,25 @@ import lombok.NoArgsConstructor;
 
 
 @Entity
-@Table(name = "tools")
+@Table(name = "users")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class ToolsEntity {
+public class UserEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(unique = true, nullable = false)
     private Long id;
 
+    @Column(unique = true, nullable = false)
+    private String rut;
+
     private String name;
-    private String category;
+    private String email;
+    private String phoneNumber;
     private String status;
-    private double replacementValue;
-    private Integer stock;
+
+    private String username;
+    private String password;
+    private String role;
 }

@@ -1,0 +1,44 @@
+package com.ToolRent.ToolRent.Controller;
+
+
+import com.ToolRent.ToolRent.Entity.ToolsEntity;
+import com.ToolRent.ToolRent.Entity.UserEntity;
+import com.ToolRent.ToolRent.Service.ToolsService;
+import com.ToolRent.ToolRent.Service.UserService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+
+@RestController
+@RequestMapping("/api/tools")
+public class ToolsController {
+
+    @Autowired
+    private ToolsService toolsService;
+
+    @PostMapping("/createTool")
+    public ResponseEntity<ToolsEntity> createTool(@RequestBody ToolsEntity tool) {
+        ToolsEntity savedTool = toolsService.registerTool(tool);
+        return ResponseEntity.ok(savedTool);
+    }
+
+    // Obtener todas las herramientas (para verificar inserciones)
+    @GetMapping("/")
+    public ResponseEntity<List<ToolsEntity>> getAllTools() {
+        return ResponseEntity.ok(toolsService.findAll());
+    }
+
+    // ✅ RF1.2 - Dar de baja herramienta (solo Administrador)
+    @PutMapping("/{toolId}/decommission")
+    public ResponseEntity<?> decommissionTool(@PathVariable Long toolId, @RequestParam Long userId) {
+        try {
+            ToolsEntity updatedTool = toolsService.decommissionTool(toolId, userId);
+            return ResponseEntity.ok(updatedTool);
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(403).body(e.getMessage());
+        }
+    }
+}
+
