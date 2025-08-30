@@ -2,9 +2,7 @@ package com.ToolRent.ToolRent.Controller;
 
 
 import com.ToolRent.ToolRent.Entity.ToolsEntity;
-import com.ToolRent.ToolRent.Entity.UserEntity;
 import com.ToolRent.ToolRent.Service.ToolsService;
-import com.ToolRent.ToolRent.Service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -30,7 +28,6 @@ public class ToolsController {
         return ResponseEntity.ok(toolsService.findAll());
     }
 
-    // ✅ RF1.2 - Dar de baja herramienta (solo Administrador)
     @PutMapping("/{toolId}/decommission")
     public ResponseEntity<?> decommissionTool(@PathVariable Long toolId, @RequestParam Long userId) {
         try {
