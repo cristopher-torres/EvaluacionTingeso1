@@ -5,6 +5,8 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.List;
+
 
 @Entity
 @Table(name = "users")
@@ -25,7 +27,13 @@ public class UserEntity {
     private String phoneNumber;
     private String status;
 
+    @Column(unique = true, nullable = false)
     private String username;
+
     private String password;
     private String role;
+
+    @OneToMany(mappedBy = "client", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<LoanEntity> loans;
+
 }
