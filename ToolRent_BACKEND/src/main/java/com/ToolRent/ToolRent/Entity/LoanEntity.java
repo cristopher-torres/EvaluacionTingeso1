@@ -29,7 +29,7 @@ public class LoanEntity {
     private Date startDate;    //La fecha en que el cliente retira la herramienta.
 
     @Column(nullable = false)
-    private Date deliveryDate; //La fecha límite para devolver la herramienta.
+    private Date scheduledReturnDate; //La fecha límite para devolver la herramienta.
 
     private Date returnDate;   //La fecha en que el cliente devuelve la herramienta.
 

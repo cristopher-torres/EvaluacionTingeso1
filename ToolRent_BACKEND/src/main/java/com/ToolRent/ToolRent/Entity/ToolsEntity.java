@@ -21,7 +21,10 @@ public class ToolsEntity {
 
     private String name;
     private String category;
-    private String status;
+
+    @Enumerated(EnumType.STRING)
+    private ToolStatus status;
+
     private double replacementValue;
     private Integer stock;
 

@@ -1,5 +1,6 @@
 package com.ToolRent.ToolRent.Service;
 
+import com.ToolRent.ToolRent.Entity.ToolStatus;
 import com.ToolRent.ToolRent.Entity.ToolsEntity;
 import com.ToolRent.ToolRent.Entity.UserEntity;
 import com.ToolRent.ToolRent.Repository.ToolsRepository;
@@ -33,7 +34,7 @@ public class ToolsService {
 
         // Estado por defecto si no viene
         if (tool.getStatus() == null) {
-            tool.setStatus("Disponible");
+            tool.setStatus(ToolStatus.DISPONIBLE);
         }
 
         // Si no hay stock, inicializar en 0
@@ -61,7 +62,7 @@ public class ToolsService {
         ToolsEntity tool = toolsRepository.findById(toolId)
                 .orElseThrow(() -> new RuntimeException("Tool not found"));
 
-        tool.setStatus("Dada de baja");
+        tool.setStatus(ToolStatus.DADA_DE_BAJA);
         tool.setStock(0);
 
         return toolsRepository.save(tool);
@@ -69,5 +70,10 @@ public class ToolsService {
 
     public List<ToolsEntity> findAll() {
         return toolsRepository.findAll();
+    }
+
+    public ToolsEntity findById(Long id) {
+        return toolsRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Herramienta no encontrado"));
     }
 }
