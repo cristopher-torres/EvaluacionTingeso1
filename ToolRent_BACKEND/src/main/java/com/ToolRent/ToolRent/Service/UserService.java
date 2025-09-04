@@ -29,4 +29,18 @@ public class UserService {
                 .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
     }
 
+    public void checkActiveLoans(Long userId) {
+        long activeLoans = userRepository.countActiveLoans(userId);
+        if (activeLoans >= 5) {
+            throw new RuntimeException("El usuario ya tiene 5 prestamos activos no puede tomar otro prestamo.");
+        }
+    }
+
+    public void checkDuplicateToolLoan(Long userId, Long toolUnitId) {
+        if (userRepository.existsActiveLoanForTool(userId, toolUnitId)) {
+            throw new RuntimeException("El usuario ya tiene un prestamos activo de esta herramienta");
+        }
+    }
+
+
 }

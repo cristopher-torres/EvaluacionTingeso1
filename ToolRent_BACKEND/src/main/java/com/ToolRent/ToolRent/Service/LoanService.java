@@ -1,14 +1,13 @@
 package com.ToolRent.ToolRent.Service;
 
-import com.ToolRent.ToolRent.Entity.LoanEntity;
-import com.ToolRent.ToolRent.Entity.ToolStatus;
-import com.ToolRent.ToolRent.Entity.ToolsEntity;
-import com.ToolRent.ToolRent.Entity.UserEntity;
+import com.ToolRent.ToolRent.Entity.*;
 import com.ToolRent.ToolRent.Repository.LoanRepository;
-import com.ToolRent.ToolRent.Repository.UserRepository;
+import com.ToolRent.ToolRent.Repository.ToolUnitRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
 
 @Service
 public class LoanService {
@@ -22,30 +21,52 @@ public class LoanService {
     @Autowired
     private ToolsService toolsService;
 
+    @Autowired
+    private ToolUnitRepository toolUnitRepository;
+
     @Transactional
-    public LoanEntity registerLoan(LoanEntity loan){
-        if(loan.getClient() == null){
-            throw new IllegalArgumentException("Se debe ingresar el cliente");
+    public LoanEntity createLoan(LoanEntity loan) {
+
+        if (loan.getClient() == null) {
+            throw new IllegalArgumentException("Se debe ingresar un cliente");
         }
-        if(loan.getTool() == null){
-            throw new IllegalArgumentException("Se debe ingresar una herramienta");
+        if (loan.getToolUnit() == null || loan.getToolUnit().getId() == null) {
+            throw new IllegalArgumentException("Se debe ingresar una herramienta válida");
         }
-        if(loan.getStartDate() == null){
-            throw new IllegalArgumentException("Se debe ingresar la fecha de entrega de la herramienta");
-        }
-        if(loan.getScheduledReturnDate() == null){
-            throw new IllegalArgumentException("Se debe ingresar la fecha pactada de la devolución de la herramienta");
+
+        Long userId = loan.getClient().getId();
+        Long toolUnitId = loan.getToolUnit().getId();
+
+        // Verificar que no tenga más de 5 préstamos activos
+        userService.checkActiveLoans(userId);
+
+        // Verificar que no tenga un préstamo activo de la misma herramienta
+        userService.checkDuplicateToolLoan(userId, toolUnitId);
+
+        // Validar cliente adicional (si tienes lógica extra)
+        validateClient(userId);
+
+        // Validar fechas
+        if (loan.getStartDate() == null || loan.getScheduledReturnDate() == null) {
+            throw new IllegalArgumentException("Se deben ingresar fechas de préstamo y devolución");
         }
         if (loan.getScheduledReturnDate().before(loan.getStartDate())) {
             throw new IllegalArgumentException("La fecha de devolución no puede ser anterior a la fecha de entrega");
         }
 
-        validateClient(loan.getClient().getId());
-        validateToolStock(loan.getTool().getId());
-        validateToolStatus(loan.getTool().getId());
+        // Obtener unidad disponible desde ToolsService
+        ToolUnitEntity availableUnit = toolsService.getAvailableUnit(toolUnitId);
+
+        // Marcar la unidad como prestada
+        toolsService.loanUnit(availableUnit);
+
+        // Asociar la unidad al préstamo
+        loan.setToolUnit(availableUnit);
+
 
         return loanRepository.save(loan);
     }
+
 
     private void validateClient(long userId){
         UserEntity user = userService.findById(userId);
@@ -55,18 +76,8 @@ public class LoanService {
         }
     }
 
-    private void validateToolStock(long toolId){
-        ToolsEntity tool = toolsService.findById(toolId);
-        if (tool.getStock() <= 0) {
-            throw new RuntimeException("La Herramienta no tiene stock suficiente");
-        }
-    }
 
-    private void validateToolStatus(long toolId) {
-        ToolsEntity tool = toolsService.findById(toolId);
+    private void returnLoan(LoanEntity loan){
 
-        if (tool.getStatus() != ToolStatus.DISPONIBLE) {
-            throw new RuntimeException("La herramienta no está disponible para préstamo");
-        }
     }
 }

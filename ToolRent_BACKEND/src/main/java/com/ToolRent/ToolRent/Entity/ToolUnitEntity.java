@@ -1,5 +1,7 @@
 package com.ToolRent.ToolRent.Entity;
 
+
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -8,25 +10,27 @@ import lombok.NoArgsConstructor;
 
 import java.util.List;
 
-
 @Entity
-@Table(name = "tools")
+@Table(name = "tool_units")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class ToolsEntity {
+public class ToolUnitEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(unique = true, nullable = false)
     private Long id;
 
-    private String name;
-    private String category;
-    private Integer stock;
-    private double replacementValue;
+    @Enumerated(EnumType.STRING)
+    private ToolStatus status;
 
-    @OneToMany(mappedBy = "tool", cascade = CascadeType.ALL, orphanRemoval = true)
+    @ManyToOne
+    @JoinColumn(name = "tool_id", nullable = false)
+    @JsonBackReference
+    private ToolsEntity tool;
+
+    @OneToMany(mappedBy = "toolUnit", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JsonManagedReference
-    private List<ToolUnitEntity> units;
+    private List<LoanEntity> loans;
 
 }

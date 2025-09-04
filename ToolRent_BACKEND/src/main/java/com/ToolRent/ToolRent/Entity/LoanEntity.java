@@ -1,5 +1,6 @@
 package com.ToolRent.ToolRent.Entity;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -18,11 +19,13 @@ public class LoanEntity {
     private Long id;
 
     @ManyToOne
-    @JoinColumn(name = "tool_id")
-    private ToolsEntity tool;
+    @JoinColumn(name = "tool_unit_id", nullable = false)
+    @JsonBackReference
+    private ToolUnitEntity toolUnit;
 
     @ManyToOne
     @JoinColumn(name = "client_id")
+    @JsonBackReference("client-loans")
     private UserEntity client;
 
     @Column(nullable = false)
@@ -36,12 +39,13 @@ public class LoanEntity {
     private Double delayFine;
     private Double damageCharge;
     private String damageLevel;
-
-    private Boolean paid;
+    private boolean delivered = false;
 
     @Column(nullable = false)
     private LocalDateTime createdLoan;
 
-    @Column(nullable = false)
-    private String createdBy;
+    @ManyToOne
+    @JoinColumn(name = "created_by", nullable = false)
+    @JsonBackReference("created-loans")
+    private UserEntity createdBy;
 }
