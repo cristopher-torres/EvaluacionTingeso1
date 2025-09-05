@@ -24,6 +24,8 @@ public class ToolsEntity {
     private String category;
     private Integer stock;
     private double replacementValue;
+    private double dailyRate;
+    private double dailyLateRate;
 
     @OneToMany(mappedBy = "tool", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonManagedReference

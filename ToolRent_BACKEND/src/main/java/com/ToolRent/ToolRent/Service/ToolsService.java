@@ -125,7 +125,11 @@ public class ToolsService {
 
     @Transactional
     public void returnUnit(ToolUnitEntity unit) {
+        // Marcar la unidad como disponible
         unit.setStatus(ToolStatus.DISPONIBLE);
         toolUnitRepository.save(unit);
+        ToolsEntity tool = unit.getTool();
+        tool.setStock(tool.getStock() + 1);
+        toolsRepository.save(tool);
     }
 }

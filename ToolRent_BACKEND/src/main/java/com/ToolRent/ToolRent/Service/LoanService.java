@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Date;
 import java.util.List;
 
 @Service
@@ -77,7 +78,28 @@ public class LoanService {
     }
 
 
-    private void returnLoan(LoanEntity loan){
+    public LoanEntity returnLoan(Long loanId){
+        // Buscar el préstamo en la base de datos
+        LoanEntity loan = loanRepository.findById(loanId)
+                .orElseThrow(() -> new RuntimeException("Préstamo no encontrado"));
+
+        // Validar que no haya sido devuelto
+        if (loan.isDelivered()) {
+            throw new RuntimeException("El préstamo ya fue devuelto");
+        }
+
+        // Fecha actual de devolución
+        Date returnDate = new Date();
+        loan.setReturnDate(returnDate);
+        loan.setDelivered(true);
+
+        ToolUnitEntity itemTool = loan.getToolUnit();
+        ToolsEntity tool = itemTool.getTool();
+
+        // Marcar la unidad como disponible
+        toolsService.returnUnit(itemTool);
+
+        return loanRepository.save(loan);
 
     }
 }

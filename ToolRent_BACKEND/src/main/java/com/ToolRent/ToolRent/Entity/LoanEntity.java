@@ -36,9 +36,6 @@ public class LoanEntity {
 
     private Date returnDate;   //La fecha en que el cliente devuelve la herramienta.
 
-    private Double delayFine;
-    private Double damageCharge;
-    private String damageLevel;
     private boolean delivered = false;
 
     @Column(nullable = false)

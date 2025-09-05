@@ -5,6 +5,7 @@ import com.ToolRent.ToolRent.Entity.ToolsEntity;
 import com.ToolRent.ToolRent.Service.ToolsService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -16,6 +17,7 @@ public class ToolsController {
     @Autowired
     private ToolsService toolsService;
 
+    @PreAuthorize("hasRole('ADMIN')")
     @PostMapping("/createTool")
     public ResponseEntity<ToolsEntity> createTool(@RequestBody ToolsEntity tool) {
         ToolsEntity savedTool = toolsService.registerTool(tool);
