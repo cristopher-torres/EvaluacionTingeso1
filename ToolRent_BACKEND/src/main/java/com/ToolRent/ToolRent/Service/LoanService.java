@@ -2,13 +2,11 @@ package com.ToolRent.ToolRent.Service;
 
 import com.ToolRent.ToolRent.Entity.*;
 import com.ToolRent.ToolRent.Repository.LoanRepository;
-import com.ToolRent.ToolRent.Repository.ToolUnitRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Date;
-import java.util.List;
 
 @Service
 public class LoanService {
@@ -21,9 +19,6 @@ public class LoanService {
 
     @Autowired
     private ToolsService toolsService;
-
-    @Autowired
-    private ToolUnitRepository toolUnitRepository;
 
     @Transactional
     public LoanEntity createLoan(LoanEntity loan) {

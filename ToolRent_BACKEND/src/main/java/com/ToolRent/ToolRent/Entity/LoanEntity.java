@@ -38,6 +38,9 @@ public class LoanEntity {
 
     private boolean delivered = false;
 
+    private double fine;
+    private double loanPrice;
+
     @Column(nullable = false)
     private LocalDateTime createdLoan;
 

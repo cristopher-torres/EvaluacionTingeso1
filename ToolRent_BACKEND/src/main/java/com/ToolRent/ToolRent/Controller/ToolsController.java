@@ -17,7 +17,7 @@ public class ToolsController {
     @Autowired
     private ToolsService toolsService;
 
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAnyRole('EMPLOYEE','ADMIN')")
     @PostMapping("/createTool")
     public ResponseEntity<ToolsEntity> createTool(@RequestBody ToolsEntity tool) {
         ToolsEntity savedTool = toolsService.registerTool(tool);
@@ -30,6 +30,7 @@ public class ToolsController {
         return ResponseEntity.ok(toolsService.findAll());
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @PutMapping("/{toolId}/decommission")
     public ResponseEntity<?> decommissionTool(@PathVariable Long toolId, @RequestParam Long userId) {
         try {

@@ -17,16 +17,18 @@ public class LoanController {
     @Autowired
     private LoanService loanService;
 
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAnyRole('EMPLOYEE','ADMIN')")
     @PostMapping("/createLoan")
     public ResponseEntity<LoanEntity> createLoan(@RequestBody LoanEntity loan) {
         LoanEntity createdLoan = loanService.createLoan(loan);
         return ResponseEntity.ok(createdLoan);
     }
 
+    @PreAuthorize("hasAnyRole('EMPLOYEE','ADMIN')")
     @PostMapping("/{loanId}/return")
     public LoanEntity returnLoan(@PathVariable Long loanId) {
         return loanService.returnLoan(loanId);
     }
+
 
 }
