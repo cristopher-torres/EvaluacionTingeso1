@@ -1,4 +1,3 @@
-import React from "react";
 import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
 import Container from "@mui/material/Container";
@@ -15,7 +14,6 @@ const Home = () => {
       display: "flex",
       flexDirection: "column"
     }}>
-      {/* Contenido principal */}
       <Box sx={{ flexGrow: 1 }}>
         {/* Hero Section */}
         <Container maxWidth="lg" sx={{ mt: 8, mb: 8 }}>
