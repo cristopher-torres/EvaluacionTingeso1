@@ -18,6 +18,7 @@ const Home = () => {
         flexDirection: "column",
       }}
     >
+      {/* Contenido principal */}
       <Box sx={{ flexGrow: 1 }}>
         <Container maxWidth="lg" sx={{ mt: 8, mb: 8 }}>
           <Box
@@ -38,7 +39,6 @@ const Home = () => {
                   👋 Hola, {username}
                 </Typography>
 
-                {/* Botón solo si está logueado */}
                 <Button
                   variant="contained"
                   size="large"
@@ -51,8 +51,6 @@ const Home = () => {
                     "&:hover": { backgroundColor: "#2e7d32" },
                   }}
                   onClick={() => {
-                    // Aquí puedes redirigir a la página de registrar préstamos
-                    // Por ejemplo, si usas react-router-dom:
                     window.location.href = "/prestamos";
                   }}
                 >
@@ -65,13 +63,13 @@ const Home = () => {
                   variant="h3"
                   sx={{ fontWeight: "bold", color: "#1b5e20", mb: 2 }}
                 >
-                  Toolrent: Sistema de Gestión de Préstamos de Herramientas
+                  Arrienda las mejores herramientas para tu proyecto
                 </Typography>
                 <Typography
                   variant="h6"
                   sx={{ color: "#2e7d32", mb: 4 }}
                 >
-                  Herramientas de construcción y reparación
+                  Herramientas de construcción y reparación al alcance de tu mano
                 </Typography>
                 <Button
                   variant="contained"
@@ -93,9 +91,32 @@ const Home = () => {
           </Box>
         </Container>
       </Box>
+
+      {/* Footer */}
+      <Box
+        sx={{
+          borderTop: "1px solid rgba(255,255,255,0.2)",
+          mt: 4,
+          pt: 3,
+          pb: 3,
+          textAlign: "center",
+          backgroundColor: "#1b5e20",
+          color: "white",
+        }}
+      >
+        <Typography variant="h6" sx={{ mb: 1, fontWeight: "bold" }}>
+          ToolRent - Sistema de Gestión de Herramientas
+        </Typography>
+        <Typography variant="body2" sx={{ opacity: 0.8 }}>
+          © 2025 ToolRent. Todos los derechos reservados.
+        </Typography>
+      </Box>
     </Box>
   );
 };
 
 export default Home;
+
+
+
 

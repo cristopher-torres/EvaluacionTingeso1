@@ -27,7 +27,7 @@ function App() {
   return (
       <Router>
           <div className="container">
-          <Navbar></Navbar>
+          <Navbar />
             <Routes>
               <Route path="/" element={<Home/>} />
               <Route path="*" element={<NotFound/>} />

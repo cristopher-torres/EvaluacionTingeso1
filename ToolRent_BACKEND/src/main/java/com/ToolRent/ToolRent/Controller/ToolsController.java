@@ -24,8 +24,9 @@ public class ToolsController {
         return ResponseEntity.ok(savedTool);
     }
 
-    // Obtener todas las herramientas (para verificar inserciones)
-    @GetMapping("/")
+
+    @PreAuthorize("hasAnyRole('EMPLOYEE','ADMIN')")
+    @GetMapping("/getTools")
     public ResponseEntity<List<ToolsEntity>> getAllTools() {
         return ResponseEntity.ok(toolsService.findAll());
     }

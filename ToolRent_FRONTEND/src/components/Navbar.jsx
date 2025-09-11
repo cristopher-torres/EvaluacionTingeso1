@@ -5,12 +5,14 @@ import Typography from '@mui/material/Typography';
 import Container from '@mui/material/Container';
 import Button from '@mui/material/Button';
 import { useKeycloak } from "@react-keycloak/web";
+import { Navigate, useNavigate } from 'react-router-dom';
 
 // Importa tu logo
 import logo from "../assets/ToolRent_Logo.png";
 
 function DesktopAppBar() {
   const { keycloak } = useKeycloak();
+  const navigate = useNavigate();
 
   return (
     <AppBar position="static" sx={{ backgroundColor: '#1b5e20', width: "100%" }}>
@@ -43,7 +45,7 @@ function DesktopAppBar() {
           <div style={{ flexGrow: 1, display: 'flex', justifyContent: 'flex-end', marginRight: '60px' }}>
             {/* Inventario */}
             <Button
-              onClick={() => (window.location.href = "/inventario")}
+              onClick={() => navigate("/inventario")}
               sx={{
                 my: 2,
                 color: 'white',
@@ -106,6 +108,3 @@ function DesktopAppBar() {
 }
 
 export default DesktopAppBar;
-
-
-
