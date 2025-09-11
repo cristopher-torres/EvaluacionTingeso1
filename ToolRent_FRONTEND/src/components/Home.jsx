@@ -1,13 +1,36 @@
 import { useKeycloak } from "@react-keycloak/web";
+import { useState, useEffect } from "react";
 import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
 import Container from "@mui/material/Container";
 import Button from "@mui/material/Button";
+import Table from "@mui/material/Table";
+import TableBody from "@mui/material/TableBody";
+import TableCell from "@mui/material/TableCell";
+import TableContainer from "@mui/material/TableContainer";
+import TableHead from "@mui/material/TableHead";
+import TableRow from "@mui/material/TableRow";
+import Paper from "@mui/material/Paper";
+
+import toolService from "../services/tool.service";
 
 const Home = () => {
   const { keycloak } = useKeycloak();
-
   const username = keycloak.tokenParsed?.preferred_username;
+
+  const [toolsStock, setToolsStock] = useState([]);
+
+  useEffect(() => {
+    // Traer stock de herramientas
+    toolService
+      .getStock()
+      .then((response) => {
+        setToolsStock(response.data);
+      })
+      .catch((error) => {
+        console.error("Error al cargar stock de herramientas", error);
+      });
+  }, []);
 
   return (
     <Box
@@ -89,6 +112,34 @@ const Home = () => {
               </>
             )}
           </Box>
+
+          {/* Tabla de stock */}
+          <TableContainer component={Paper}>
+            <Table>
+              <TableHead>
+                <TableRow>
+                  <TableCell>Nombre</TableCell>
+                  <TableCell>Categoría</TableCell>
+                  <TableCell>Disponible</TableCell>
+                  <TableCell>Prestada</TableCell>
+                  <TableCell>En Reparación</TableCell>
+                  <TableCell>Dada de Baja</TableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {toolsStock.map((tool) => (
+                  <TableRow key={tool.name}>
+                    <TableCell>{tool.name}</TableCell>
+                    <TableCell>{tool.category}</TableCell>
+                    <TableCell>{tool.disponible}</TableCell>
+                    <TableCell>{tool.prestada}</TableCell>
+                    <TableCell>{tool.enReparacion}</TableCell>
+                    <TableCell>{tool.dadaDeBaja}</TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </TableContainer>
         </Container>
       </Box>
 
@@ -116,6 +167,7 @@ const Home = () => {
 };
 
 export default Home;
+
 
 
 

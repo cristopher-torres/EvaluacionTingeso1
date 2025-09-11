@@ -12,6 +12,7 @@ import java.util.Optional;
 @Repository
 public interface UserRepository extends JpaRepository<UserEntity, Long> {
     Optional<UserEntity> findByEmail(String email);
+
     @Query("SELECT COUNT(l) " +
             "FROM LoanEntity l " +
             "WHERE l.client.id = :userId " +
@@ -19,9 +20,9 @@ public interface UserRepository extends JpaRepository<UserEntity, Long> {
     long countActiveLoans(@Param("userId") Long userId);
 
     @Query("SELECT CASE WHEN COUNT(l) > 0 THEN true ELSE false END " +
-            "FROM LoanEntity l JOIN l.toolUnit tu " +
+            "FROM LoanEntity l " +
             "WHERE l.client.id = :userId " +
-            "AND tu.tool.id = :toolId " +
+            "AND l.tool.id = :toolId " +
             "AND l.delivered = false")
     boolean existsActiveLoanForTool(@Param("userId") Long userId, @Param("toolId") Long toolId);
 }

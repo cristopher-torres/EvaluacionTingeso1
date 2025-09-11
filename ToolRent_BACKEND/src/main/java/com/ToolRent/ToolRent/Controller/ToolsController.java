@@ -1,6 +1,7 @@
 package com.ToolRent.ToolRent.Controller;
 
 
+import com.ToolRent.ToolRent.DTO.ToolStockDTO;
 import com.ToolRent.ToolRent.Entity.ToolsEntity;
 import com.ToolRent.ToolRent.Service.ToolsService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,9 +20,9 @@ public class ToolsController {
     private ToolsService toolsService;
 
     @PreAuthorize("hasAnyRole('EMPLOYEE','ADMIN')")
-    @PostMapping("/createTool")
-    public ResponseEntity<ToolsEntity> createTool(@RequestBody ToolsEntity tool) {
-        ToolsEntity savedTool = toolsService.registerTool(tool);
+    @PostMapping("/createTool/{quantity}")
+    public ResponseEntity<ToolsEntity> createTool(@RequestBody ToolsEntity tool, @PathVariable("quantity") int quantity) {
+        ToolsEntity savedTool = toolsService.registerTool(tool, quantity);
         return ResponseEntity.ok(savedTool);
     }
 
@@ -41,6 +42,12 @@ public class ToolsController {
         } catch (RuntimeException e) {
             return ResponseEntity.status(403).body(e.getMessage());
         }
+    }
+
+    @GetMapping("/stock")
+    public ResponseEntity<List<ToolStockDTO>> getToolsStock() {
+        List<ToolStockDTO> stock = toolsService.getToolsStock();
+        return ResponseEntity.ok(stock);
     }
 }
 

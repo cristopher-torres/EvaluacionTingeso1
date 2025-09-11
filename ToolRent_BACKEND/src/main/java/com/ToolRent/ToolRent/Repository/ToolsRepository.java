@@ -1,12 +1,25 @@
 package com.ToolRent.ToolRent.Repository;
 
+import com.ToolRent.ToolRent.Entity.ToolStatus;
 import com.ToolRent.ToolRent.Entity.ToolsEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 
 @Repository
 public interface ToolsRepository extends JpaRepository<ToolsEntity, Long> {
+    // Buscar la primera herramienta disponible por nombre
+    Optional<ToolsEntity> findByIdAndStatus(Long id, ToolStatus status);
+
+    List<ToolsEntity> findByName(String name);
+    @Query("SELECT DISTINCT t.name, t.category FROM ToolsEntity t")
+
+    List<Object[]> findDistinctNameAndCategory();
+
+    int countByNameAndCategoryAndStatus(String name, String category, ToolStatus status);
 }

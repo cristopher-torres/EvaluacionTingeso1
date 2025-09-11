@@ -22,13 +22,15 @@ public class ToolsEntity {
 
     private String name;
     private String category;
-    private Integer stock;
     private double replacementValue;
     private double dailyRate;
     private double dailyLateRate;
 
+    @Enumerated(EnumType.STRING)
+    private ToolStatus status;
+
     @OneToMany(mappedBy = "tool", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonManagedReference
-    private List<ToolUnitEntity> units;
+    private List<LoanEntity> loans;
 
 }

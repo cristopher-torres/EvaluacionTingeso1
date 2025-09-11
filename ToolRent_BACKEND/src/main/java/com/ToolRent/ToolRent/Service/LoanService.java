@@ -26,12 +26,12 @@ public class LoanService {
         if (loan.getClient() == null) {
             throw new IllegalArgumentException("Se debe ingresar un cliente");
         }
-        if (loan.getToolUnit() == null || loan.getToolUnit().getId() == null) {
+        if (loan.getTool() == null || loan.getTool().getId() == null) {
             throw new IllegalArgumentException("Se debe ingresar una herramienta válida");
         }
 
         Long userId = loan.getClient().getId();
-        Long toolUnitId = loan.getToolUnit().getId();
+        Long toolUnitId = loan.getTool().getId();
 
         // Verificar que no tenga más de 5 préstamos activos
         userService.checkActiveLoans(userId);
@@ -51,13 +51,13 @@ public class LoanService {
         }
 
         // Obtener unidad disponible desde ToolsService
-        ToolUnitEntity availableUnit = toolsService.getAvailableUnit(toolUnitId);
+        ToolsEntity availableUnit = toolsService.getAvailableTool(toolUnitId);
 
         // Marcar la unidad como prestada
-        toolsService.loanUnit(availableUnit);
+        toolsService.loanTool(toolUnitId);
 
         // Asociar la unidad al préstamo
-        loan.setToolUnit(availableUnit);
+        loan.setTool(availableUnit);
 
 
         return loanRepository.save(loan);
@@ -88,11 +88,10 @@ public class LoanService {
         loan.setReturnDate(returnDate);
         loan.setDelivered(true);
 
-        ToolUnitEntity itemTool = loan.getToolUnit();
-        ToolsEntity tool = itemTool.getTool();
+        long itemTool = loan.getTool().getId();
 
         // Marcar la unidad como disponible
-        toolsService.returnUnit(itemTool);
+        toolsService.returnTool(itemTool);
 
         return loanRepository.save(loan);
 

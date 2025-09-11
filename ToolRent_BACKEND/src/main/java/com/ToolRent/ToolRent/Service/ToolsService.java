@@ -1,17 +1,18 @@
 package com.ToolRent.ToolRent.Service;
 
+import com.ToolRent.ToolRent.DTO.ToolStockDTO;
 import com.ToolRent.ToolRent.Entity.ToolStatus;
-import com.ToolRent.ToolRent.Entity.ToolUnitEntity;
 import com.ToolRent.ToolRent.Entity.ToolsEntity;
 import com.ToolRent.ToolRent.Entity.UserEntity;
-import com.ToolRent.ToolRent.Repository.ToolUnitRepository;
 import com.ToolRent.ToolRent.Repository.ToolsRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 
 @Service
@@ -22,12 +23,9 @@ public class ToolsService {
     @Autowired
     private UserService userService;
 
-    @Autowired
-    private ToolUnitRepository toolUnitRepository;
-
     // Registrar herramienta
     @Transactional
-    public ToolsEntity registerTool(ToolsEntity tool) {
+    public ToolsEntity registerTool(ToolsEntity tool, int quantity) {
         if (tool.getName() == null || tool.getName().isBlank()) {
             throw new IllegalArgumentException("Se debe ingresar el nombre");
         }
@@ -37,26 +35,24 @@ public class ToolsService {
         if (tool.getReplacementValue() <= 0) {
             throw new IllegalArgumentException("El valor de reposición debe ser mayor que 0");
         }
-        if (tool.getStock() == null || tool.getStock() < 0) {
-            throw new IllegalArgumentException("El stock debe ser mayor o igual a 0");
-        }
-
-        // 1. Guardar herramienta (sin items aún)
-        tool = toolsRepository.save(tool);
 
         // 2. Crear unidades automáticamente
-        List<ToolUnitEntity> items = new ArrayList<>();
-        for (int i = 0; i < tool.getStock(); i++) {
-            ToolUnitEntity item = new ToolUnitEntity();
-            item.setTool(tool);
-            item.setStatus(ToolStatus.DISPONIBLE);
-            items.add(item);
+        List<ToolsEntity> units = new ArrayList<>();
+        for (int i = 0; i < quantity; i++) {
+            ToolsEntity unit = new ToolsEntity();
+            unit.setName(tool.getName());
+            unit.setCategory(tool.getCategory());
+            unit.setReplacementValue(tool.getReplacementValue());
+            unit.setDailyRate(tool.getDailyRate());
+            unit.setDailyLateRate(tool.getDailyLateRate());
+            unit.setStatus(ToolStatus.DISPONIBLE);
+            units.add(unit);
         }
 
-        toolUnitRepository.saveAll(items);
-        tool.setUnits(items);
+        List<ToolsEntity> savedUnits = toolsRepository.saveAll(units);
 
-        return tool;
+        // Devolver la primera unidad creada
+        return savedUnits.get(0);
     }
 
     private void validateAdminPermission(Long userId) {
@@ -76,13 +72,8 @@ public class ToolsService {
         ToolsEntity tool = toolsRepository.findById(toolId)
                 .orElseThrow(() -> new RuntimeException("Herramienta no encontrada"));
 
-        // Actualizar estado de todas las unidades
-        for (ToolUnitEntity item : tool.getUnits()) {
-            item.setStatus(ToolStatus.DADA_DE_BAJA);
-        }
-
-        toolUnitRepository.saveAll(tool.getUnits());
-        return tool;
+        tool.setStatus(ToolStatus.DADA_DE_BAJA);
+        return toolsRepository.save(tool);
     }
 
     public List<ToolsEntity> findAll() {
@@ -91,45 +82,63 @@ public class ToolsService {
 
     public ToolsEntity findById(Long id) {
         return toolsRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Herramienta no encontrado"));
+                .orElseThrow(() -> new RuntimeException("Herramienta no encontrada"));
     }
 
+    // Obtener una unidad disponible de un tipo de herramienta
     @Transactional
-    public ToolUnitEntity getAvailableUnit(Long toolId) {
-        List<ToolUnitEntity> disponibles =
-                toolUnitRepository.findByTool_IdAndStatus(toolId, ToolStatus.DISPONIBLE);
+    public ToolsEntity getAvailableTool(long id) {
+        return toolsRepository.findByIdAndStatus(id, ToolStatus.DISPONIBLE)
+                .orElseThrow(() -> new RuntimeException("No hay unidades disponibles para préstamo"));
+    }
 
-        if (disponibles.isEmpty()) {
-            // Aquí se asegura que no se pueda prestar si no hay stock
-            throw new RuntimeException("No hay unidades disponibles para préstamo");
+    // Prestar una unidad
+    @Transactional
+    public void loanTool(Long toolId) {
+        ToolsEntity tool = toolsRepository.findById(toolId)
+                .orElseThrow(() -> new RuntimeException("Herramienta no encontrada"));
+
+        if (tool.getStatus() != ToolStatus.DISPONIBLE) {
+            throw new RuntimeException("La herramienta no está disponible");
         }
 
-        return disponibles.get(0); // tomamos la primera unidad disponible
-    }
-
-    @Transactional
-    public void loanUnit(ToolUnitEntity unit) {
-        // Cambiar estado de la unidad a prestada
-        unit.setStatus(ToolStatus.PRESTADA);
-        toolUnitRepository.save(unit);
-
-        // Disminuir stock de la herramienta principal
-        ToolsEntity tool = unit.getTool();
-        if (tool.getStock() > 0) {
-            tool.setStock(tool.getStock() - 1);
-            toolsRepository.save(tool);
-        } else {
-            throw new RuntimeException("No hay stock disponible para la herramienta: ");
-        }
-    }
-
-    @Transactional
-    public void returnUnit(ToolUnitEntity unit) {
-        // Marcar la unidad como disponible
-        unit.setStatus(ToolStatus.DISPONIBLE);
-        toolUnitRepository.save(unit);
-        ToolsEntity tool = unit.getTool();
-        tool.setStock(tool.getStock() + 1);
+        tool.setStatus(ToolStatus.PRESTADA);
         toolsRepository.save(tool);
+    }
+
+    // Devolver una unidad
+    @Transactional
+    public void returnTool(Long toolId) {
+        ToolsEntity tool = toolsRepository.findById(toolId)
+                .orElseThrow(() -> new RuntimeException("Herramienta no encontrada"));
+
+        if (tool.getStatus() != ToolStatus.PRESTADA) {
+            throw new RuntimeException("La herramienta no estaba prestada");
+        }
+
+        tool.setStatus(ToolStatus.DISPONIBLE);
+        toolsRepository.save(tool);
+    }
+
+    public List<ToolStockDTO> getToolsStock() {
+        List<Object[]> toolNameCategory = toolsRepository.findDistinctNameAndCategory();
+        List<ToolStockDTO> stockList = new ArrayList<>();
+
+        for (Object[] pair : toolNameCategory) {
+            String name = (String) pair[0];
+            String category = (String) pair[1];
+
+            ToolStockDTO dto = new ToolStockDTO();
+            dto.setName(name);
+            dto.setCategory(category);
+            dto.setDisponible(toolsRepository.countByNameAndCategoryAndStatus(name, category, ToolStatus.DISPONIBLE));
+            dto.setPrestada(toolsRepository.countByNameAndCategoryAndStatus(name, category, ToolStatus.PRESTADA));
+            dto.setEnReparacion(toolsRepository.countByNameAndCategoryAndStatus(name, category, ToolStatus.EN_REPARACION));
+            dto.setDadaDeBaja(toolsRepository.countByNameAndCategoryAndStatus(name, category, ToolStatus.DADA_DE_BAJA));
+
+            stockList.add(dto);
+        }
+
+        return stockList;
     }
 }

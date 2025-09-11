@@ -19,9 +19,9 @@ public class LoanEntity {
     private Long id;
 
     @ManyToOne
-    @JoinColumn(name = "tool_unit_id", nullable = false)
+    @JoinColumn(name = "tool_id", nullable = false)
     @JsonBackReference
-    private ToolUnitEntity toolUnit;
+    private ToolsEntity tool;
 
     @ManyToOne
     @JoinColumn(name = "client_id")
