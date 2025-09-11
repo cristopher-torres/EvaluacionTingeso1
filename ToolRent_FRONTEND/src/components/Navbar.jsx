@@ -45,7 +45,22 @@ function DesktopAppBar() {
           <div style={{ flexGrow: 1, display: 'flex', justifyContent: 'flex-end', marginRight: '60px' }}>
             {/* Inventario */}
             <Button
-              onClick={() => navigate("/inventario")}
+              onClick={() => {
+                if (!keycloak.authenticated) {
+                  alert("Debes iniciar sesión para acceder al inventario.");
+                  return;
+                }
+
+                // Verifica roles
+                const hasRole = keycloak.hasRealmRole("ADMIN") || keycloak.hasRealmRole("EMPLOYEE");
+                if (!hasRole) {
+                  alert("No tienes permisos para acceder al inventario.");
+                  return;
+                }
+
+                // Si pasa todas las validaciones, navega
+                navigate("/inventario");
+              }}
               sx={{
                 my: 2,
                 color: 'white',

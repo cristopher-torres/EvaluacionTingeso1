@@ -63,13 +63,13 @@ const Home = () => {
                   variant="h3"
                   sx={{ fontWeight: "bold", color: "#1b5e20", mb: 2 }}
                 >
-                  Arrienda las mejores herramientas para tu proyecto
+                  ToolRent: Sistema de Gestión de Herramientas
                 </Typography>
                 <Typography
                   variant="h6"
                   sx={{ color: "#2e7d32", mb: 4 }}
                 >
-                  Herramientas de construcción y reparación al alcance de tu mano
+                  Herramientas de construcción y reparación.
                 </Typography>
                 <Button
                   variant="contained"

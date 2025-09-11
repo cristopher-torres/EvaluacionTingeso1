@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import toolService from "../services/tool.service";
 import Table from "@mui/material/Table";
 import TableBody from "@mui/material/TableBody";
@@ -14,7 +14,6 @@ import EditIcon from "@mui/icons-material/Edit";
 
 const ToolList = () => {
   const [tools, setTools] = useState([]);
-  const navigate = useNavigate();
 
   const init = () => {
     toolService
@@ -55,6 +54,8 @@ const ToolList = () => {
             <TableRow>
               <TableCell>ID</TableCell>
               <TableCell>Nombre</TableCell>
+              <TableCell>Categoría</TableCell>
+              <TableCell>Stock</TableCell>
               <TableCell>Descripción</TableCell>
               <TableCell>Acciones</TableCell>
             </TableRow>
@@ -64,6 +65,8 @@ const ToolList = () => {
               <TableRow key={tool.id}>
                 <TableCell>{tool.id}</TableCell>
                 <TableCell>{tool.name}</TableCell>
+                <TableCell>{tool.category}</TableCell>
+                <TableCell>{tool.stock}</TableCell>
                 <TableCell>{tool.description}</TableCell>
                 <TableCell>
                   <Button
@@ -87,4 +90,5 @@ const ToolList = () => {
 };
 
 export default ToolList;
+
 

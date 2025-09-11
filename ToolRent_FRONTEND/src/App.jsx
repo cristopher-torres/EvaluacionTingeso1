@@ -32,7 +32,7 @@ function App() {
           <Navbar />
             <Routes>
               <Route path="/" element={<Home/>} />
-              <Route path="/inventario" element={<ToolList/>} />
+              <Route path="/inventario" element={<PrivateRoute element={<ToolList />} rolesAllowed={['EMPLOYEE', 'ADMIN']} />} />
               <Route path="*" element={<NotFound/>} />
             </Routes>
           </div>
