@@ -23,11 +23,6 @@ function App() {
     }
     return element;
   };
-
-  if (!isLoggedIn) { 
-    keycloak.login(); 
-    return null; 
-  } 
   
   return (
       <Router>

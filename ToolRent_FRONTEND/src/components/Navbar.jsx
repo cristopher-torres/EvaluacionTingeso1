@@ -4,22 +4,13 @@ import Toolbar from '@mui/material/Toolbar';
 import Typography from '@mui/material/Typography';
 import Container from '@mui/material/Container';
 import Button from '@mui/material/Button';
+import { useKeycloak } from "@react-keycloak/web";
 
 // Importa tu logo
 import logo from "../assets/ToolRent_Logo.png";
 
-const pages = ['Catalogo', 'Registrarse', 'Iniciar sesión'];
-
 function DesktopAppBar() {
-  const [anchorElUser, setAnchorElUser] = React.useState(null);
-
-  const handleOpenUserMenu = (event) => {
-    setAnchorElUser(event.currentTarget);
-  };
-
-  const handleCloseUserMenu = () => {
-    setAnchorElUser(null);
-  };
+  const { keycloak } = useKeycloak();
 
   return (
     <AppBar position="static" sx={{ backgroundColor: '#1b5e20', width: "100%" }}>
@@ -50,15 +41,34 @@ function DesktopAppBar() {
 
           {/* Botones de navegación */}
           <div style={{ flexGrow: 1, display: 'flex', justifyContent: 'flex-end', marginRight: '60px' }}>
-            {pages.map((page) => (
+            {/* Inventario */}
+            <Button
+              onClick={() => (window.location.href = "/inventario")}
+              sx={{
+                my: 2,
+                color: 'white',
+                backgroundColor: 'rgba(255, 255, 255, 0.1)',
+                marginLeft: 2,
+                borderRadius: 1,
+                textTransform: 'none',
+                '&:hover': {
+                  backgroundColor: '#ffeb3b',
+                  color: 'black',
+                }
+              }}
+            >
+              Inventario
+            </Button>
+
+            {/* Login / Logout dinámico */}
+            {keycloak.authenticated ? (
               <Button
-                key={page}
+                onClick={() => keycloak.logout()}
                 sx={{
                   my: 2,
                   color: 'white',
                   backgroundColor: 'rgba(255, 255, 255, 0.1)',
-                  display: 'inline-block',
-                  marginLeft: 2, 
+                  marginLeft: 2,
                   borderRadius: 1,
                   textTransform: 'none',
                   '&:hover': {
@@ -67,9 +77,27 @@ function DesktopAppBar() {
                   }
                 }}
               >
-                {page}
+                Cerrar sesión
               </Button>
-            ))}
+            ) : (
+              <Button
+                onClick={() => keycloak.login()}
+                sx={{
+                  my: 2,
+                  color: 'white',
+                  backgroundColor: 'rgba(255, 255, 255, 0.1)',
+                  marginLeft: 2,
+                  borderRadius: 1,
+                  textTransform: 'none',
+                  '&:hover': {
+                    backgroundColor: '#ffeb3b',
+                    color: 'black',
+                  }
+                }}
+              >
+                Iniciar sesión
+              </Button>
+            )}
           </div>
         </Toolbar>
       </Container>
@@ -78,4 +106,6 @@ function DesktopAppBar() {
 }
 
 export default DesktopAppBar;
+
+
 
