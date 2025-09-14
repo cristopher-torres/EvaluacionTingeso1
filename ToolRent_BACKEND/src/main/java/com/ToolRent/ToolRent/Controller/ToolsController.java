@@ -44,10 +44,31 @@ public class ToolsController {
         }
     }
 
+    @PreAuthorize("hasAnyRole('EMPLOYEE','ADMIN')")
     @GetMapping("/stock")
     public ResponseEntity<List<ToolStockDTO>> getToolsStock() {
         List<ToolStockDTO> stock = toolsService.getToolsStock();
         return ResponseEntity.ok(stock);
     }
+
+    @PreAuthorize("hasRole('ADMIN')")
+    @PutMapping("/updateTool/{toolId}")
+    public ResponseEntity<ToolsEntity> updateTool(
+            @PathVariable Long toolId,
+            @RequestBody ToolsEntity toolDetails) {
+
+        ToolsEntity updatedTool = toolsService.updateTool(toolId, toolDetails);
+        return ResponseEntity.ok(updatedTool);
+    }
+
+    @PreAuthorize("hasAnyRole('EMPLOYEE','ADMIN')")
+    @GetMapping("/getTool/{toolId}")
+    public ResponseEntity<ToolsEntity> getToolById(@PathVariable Long toolId) {
+        ToolsEntity tool = toolsService.findById(toolId);
+        return ResponseEntity.ok(tool);
+    }
+
+
+
 }
 

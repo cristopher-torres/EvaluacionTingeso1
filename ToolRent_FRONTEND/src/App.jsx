@@ -34,6 +34,7 @@ function App() {
               <Route path="/" element={<Home/>} />
               <Route path="/inventario" element={<PrivateRoute element={<ToolList />} rolesAllowed={['EMPLOYEE', 'ADMIN']} />} />
               <Route path="/tools/add" element={<PrivateRoute element={<AddEditTool />} rolesAllowed={['EMPLOYEE', 'ADMIN']} />} />
+              <Route path="/tools/edit/:id" element={<PrivateRoute element={<AddEditTool />} rolesAllowed={['ADMIN']} />} />
               <Route path="*" element={<NotFound/>} />
             </Routes>
           </div>

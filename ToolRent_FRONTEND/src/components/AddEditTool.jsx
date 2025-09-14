@@ -18,6 +18,7 @@ const AddEditTool = () => {
   const [replacementValue, setReplacementValue] = useState("");
   const [dailyRate, setDailyRate] = useState("");
   const [dailyLateRate, setDailyLateRate] = useState("");
+  const [status, setStatus] = useState("DISPONIBLE"); // Valor por defecto
 
   const { id } = useParams();
   const [titleToolForm, setTitleToolForm] = useState("");
@@ -36,6 +37,7 @@ const AddEditTool = () => {
       dailyRate: Number(dailyRate),
       dailyLateRate: Number(dailyLateRate),
       id,
+      status
     };
 
     if (id) {
@@ -44,7 +46,7 @@ const AddEditTool = () => {
         .then(() => {
           setSuccessMessage("Herramienta actualizada exitosamente ✅");
           setOpenSnackbar(true);
-          setTimeout(() => navigate("/inventario"), 3000); 
+          setTimeout(() => navigate("/inventario"), 3000);
         })
         .catch((error) => console.error("Error al actualizar herramienta ❌", error));
     } else {
@@ -72,6 +74,7 @@ const AddEditTool = () => {
           setReplacementValue(tool.replacementValue);
           setDailyRate(tool.dailyRate);
           setDailyLateRate(tool.dailyLateRate);
+          setStatus(tool.status); 
         })
         .catch((error) => console.error("Error al cargar herramienta ❌", error));
     } else {
@@ -179,6 +182,25 @@ const AddEditTool = () => {
             onChange={(e) => setDailyLateRate(e.target.value)}
           />
         </FormControl>
+
+        {id && (
+          <FormControl fullWidth>
+            <TextField
+              id="status"
+              label="Estado"
+              value={status}
+              select
+              variant="outlined"
+              onChange={(e) => setStatus(e.target.value)}
+              required
+            >
+              <MenuItem value="DISPONIBLE">DISPONIBLE</MenuItem>
+              <MenuItem value="PRESTADA">PRESTADA</MenuItem>
+              <MenuItem value="EN_REPARACION">EN REPARACION</MenuItem>
+              <MenuItem value="DADA_DE_BAJA">DAR DE BAJA</MenuItem>
+            </TextField>
+          </FormControl>
+        )}
 
         <Button
           type="submit"

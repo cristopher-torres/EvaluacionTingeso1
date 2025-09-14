@@ -12,4 +12,12 @@ const getStock = () => {
     return httpClient.get('/api/tools/stock');
 }
 
-export default { getAll, create, getStock };
+const update = (tool) => {
+  return httpClient.put(`api/tools/updateTool/${tool.id}`, tool);
+};
+
+const get = (id) => {
+  return httpClient.get(`api/tools/getTool/${id}`);
+}
+
+export default { getAll, create, getStock, update, get };

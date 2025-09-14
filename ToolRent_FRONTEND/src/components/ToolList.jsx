@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import toolService from "../services/tool.service";
 import Table from "@mui/material/Table";
 import TableBody from "@mui/material/TableBody";
@@ -12,8 +12,11 @@ import Button from "@mui/material/Button";
 import TextField from "@mui/material/TextField";
 import AddIcon from "@mui/icons-material/Add";
 import EditIcon from "@mui/icons-material/Edit";
+import { useKeycloak } from "@react-keycloak/web";
 
 const ToolList = () => {
+  const { keycloak } = useKeycloak();
+  const navigate = useNavigate();
   const [tools, setTools] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
 
@@ -21,14 +24,10 @@ const ToolList = () => {
     toolService
       .getAll()
       .then((response) => {
-        console.log("Mostrando listado de todas las herramientas.", response.data);
         setTools(response.data);
       })
       .catch((error) => {
-        console.log(
-          "Se ha producido un error al intentar mostrar listado de todas las herramientas.",
-          error
-        );
+        console.log("Error al cargar herramientas.", error);
       });
   };
 
@@ -36,7 +35,6 @@ const ToolList = () => {
     init();
   }, []);
 
-  // Filtrar herramientas según búsqueda
   const filteredTools = tools.filter((tool) => {
     const term = searchTerm.toLowerCase();
     return (
@@ -60,18 +58,16 @@ const ToolList = () => {
         onChange={(e) => setSearchTerm(e.target.value)}
       />
 
+      {/* Botón Agregar herramienta */}
       <Button
         variant="contained"
         startIcon={<AddIcon />}
-        component={Link}
-        to="/tools/add"
         sx={{
           mb: 2,
           backgroundColor: "#1b5e20",
-          "&:hover": {
-            backgroundColor: "#2e7d32"
-          },
+          "&:hover": { backgroundColor: "#2e7d32" },
         }}
+        onClick={() => navigate("/tools/add")}
       >
         Agregar herramienta
       </Button>
@@ -95,13 +91,30 @@ const ToolList = () => {
                 <TableCell>{tool.category}</TableCell>
                 <TableCell>{tool.status}</TableCell>
                 <TableCell>
+                  {/* Botón Editar solo para ADMIN */}
                   <Button
                     variant="outlined"
                     color="primary"
                     startIcon={<EditIcon />}
-                    component={Link}
-                    to={`/tools/edit/${tool.id}`}
                     sx={{ mr: 1 }}
+                    onClick={() => {
+                      if (!keycloak.authenticated) {
+                        alert(
+                          "Debes iniciar sesión para editar una herramienta."
+                        );
+                        return;
+                      }
+
+                      const isAdmin = keycloak.hasRealmRole("ADMIN");
+                      if (!isAdmin) {
+                        alert(
+                          "No tienes permisos para editar esta herramienta."
+                        );
+                        return;
+                      }
+
+                      navigate(`/tools/edit/${tool.id}`);
+                    }}
                   >
                     Editar
                   </Button>
@@ -116,6 +129,8 @@ const ToolList = () => {
 };
 
 export default ToolList;
+
+
 
 
 

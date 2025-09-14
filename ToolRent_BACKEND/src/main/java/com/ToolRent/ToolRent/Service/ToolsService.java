@@ -9,10 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 
 @Service
@@ -141,4 +138,21 @@ public class ToolsService {
 
         return stockList;
     }
+
+    public ToolsEntity updateTool(Long toolId, ToolsEntity toolDetails) {
+        ToolsEntity tool = toolsRepository.findById(toolId)
+                .orElseThrow(() -> new RuntimeException("Herramienta no encontrada"));
+
+        // Actualizar los campos editables
+        tool.setName(toolDetails.getName());
+        tool.setCategory(toolDetails.getCategory());
+        tool.setReplacementValue(toolDetails.getReplacementValue());
+        tool.setDailyRate(toolDetails.getDailyRate());
+        tool.setDailyLateRate(toolDetails.getDailyLateRate());
+        tool.setStatus(toolDetails.getStatus());
+        // Ojo: el stock lo puedes decidir si se actualiza aquí o lo dejas fijo
+
+        return toolsRepository.save(tool);
+    }
+
 }
