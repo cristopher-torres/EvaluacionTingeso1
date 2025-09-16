@@ -3,6 +3,7 @@ package com.ToolRent.ToolRent.Entity;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
@@ -11,6 +12,7 @@ import java.util.Date;
 @Entity
 @Table(name = "loans")
 @Data
+@Getter
 @NoArgsConstructor
 public class LoanEntity {
     @Id
@@ -44,8 +46,4 @@ public class LoanEntity {
     @Column(nullable = false)
     private LocalDateTime createdLoan;
 
-    @ManyToOne
-    @JoinColumn(name = "created_by", nullable = false)
-    @JsonBackReference("created-loans")
-    private UserEntity createdBy;
 }

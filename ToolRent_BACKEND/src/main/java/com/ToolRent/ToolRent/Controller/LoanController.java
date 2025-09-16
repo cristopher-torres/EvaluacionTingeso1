@@ -30,6 +30,18 @@ public class LoanController {
     public LoanEntity returnLoan(@PathVariable Long loanId) {
         return loanService.returnLoan(loanId);
     }
+    @PreAuthorize("hasAnyRole('EMPLOYEE','ADMIN')")
+    @GetMapping("/getLoans")
+    public ResponseEntity<List<LoanEntity>> getAllLoans() {
+        List<LoanEntity> loans = loanService.getAllLoans();
+        return ResponseEntity.ok(loans);
+    }
 
-
+    // Traer solo los préstamos activos (no devueltos)
+    @PreAuthorize("hasAnyRole('EMPLOYEE','ADMIN')")
+    @GetMapping("/loansActive")
+    public ResponseEntity<List<LoanEntity>> getActiveLoans() {
+        List<LoanEntity> loans = loanService.getActiveLoans();
+        return ResponseEntity.ok(loans);
+    }
 }

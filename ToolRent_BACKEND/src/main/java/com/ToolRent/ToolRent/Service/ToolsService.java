@@ -155,4 +155,8 @@ public class ToolsService {
         return toolsRepository.save(tool);
     }
 
+    public List<ToolsEntity> getAvailableTools() {
+        return toolsRepository.findByStatus(ToolStatus.DISPONIBLE);
+    }
+
 }

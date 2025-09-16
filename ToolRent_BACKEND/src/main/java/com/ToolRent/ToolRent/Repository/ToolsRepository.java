@@ -22,4 +22,5 @@ public interface ToolsRepository extends JpaRepository<ToolsEntity, Long> {
     List<Object[]> findDistinctNameAndCategory();
 
     int countByNameAndCategoryAndStatus(String name, String category, ToolStatus status);
+    List<ToolsEntity> findByStatus(ToolStatus status);
 }

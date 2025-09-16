@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Date;
+import java.util.List;
 
 @Service
 public class LoanService {
@@ -95,5 +96,15 @@ public class LoanService {
 
         return loanRepository.save(loan);
 
+    }
+
+
+    public List<LoanEntity> getAllLoans() {
+        return loanRepository.findAll();
+    }
+
+    // Obtener préstamos activos ordenados
+    public List<LoanEntity> getActiveLoans() {
+        return loanRepository.findActiveLoansOrderedByDateDesc();
     }
 }

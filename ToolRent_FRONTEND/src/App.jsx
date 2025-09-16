@@ -6,6 +6,10 @@ import NotFound from './components/NotFound';
 import { useKeycloak } from "@react-keycloak/web";
 import ToolList from './components/ToolList';
 import AddEditTool from './components/AddEditTool';
+import LoanList from './components/LoanList';
+import AddLoan from './components/AddLoan';
+import ActiveLoanList from './components/ActiveLoanList';
+import AddUser from './components/AddUser';
 
 function App() {
   const { keycloak, initialized } = useKeycloak();
@@ -35,6 +39,10 @@ function App() {
               <Route path="/inventario" element={<PrivateRoute element={<ToolList />} rolesAllowed={['EMPLOYEE', 'ADMIN']} />} />
               <Route path="/tools/add" element={<PrivateRoute element={<AddEditTool />} rolesAllowed={['EMPLOYEE', 'ADMIN']} />} />
               <Route path="/tools/edit/:id" element={<PrivateRoute element={<AddEditTool />} rolesAllowed={['ADMIN']} />} />
+              <Route path="/prestamos" element={<PrivateRoute element={<AddLoan />} rolesAllowed={['EMPLOYEE', 'ADMIN']} />} />
+              <Route path="/loans/ActiveLoanList" element={<PrivateRoute element={<ActiveLoanList />} rolesAllowed={['EMPLOYEE', 'ADMIN']} />} />
+              <Route path="/loans/list" element={<PrivateRoute element={<LoanList />} rolesAllowed={['EMPLOYEE', 'ADMIN']} />} />
+              <Route path="/user/userRegistrer" element={<PrivateRoute element={<AddUser />} rolesAllowed={['ADMIN']} />} />
               <Route path="*" element={<NotFound/>} />
             </Routes>
           </div>

@@ -20,4 +20,8 @@ const get = (id) => {
   return httpClient.get(`api/tools/getTool/${id}`);
 }
 
-export default { getAll, create, getStock, update, get };
+const getAvailable = () => {
+  return httpClient.get('/api/tools/available');
+}  
+
+export default { getAll, create, getStock, update, get, getAvailable };

@@ -11,14 +11,15 @@ import TableContainer from "@mui/material/TableContainer";
 import TableHead from "@mui/material/TableHead";
 import TableRow from "@mui/material/TableRow";
 import Paper from "@mui/material/Paper";
-
 import toolService from "../services/tool.service";
+import { useNavigate } from "react-router-dom";
 
 const Home = () => {
   const { keycloak } = useKeycloak();
   const username = keycloak.tokenParsed?.preferred_username;
 
   const [toolsStock, setToolsStock] = useState([]);
+  const navigate = useNavigate();
 
   useEffect(() => {
     // Traer stock de herramientas
@@ -73,9 +74,8 @@ const Home = () => {
                     borderRadius: 3,
                     "&:hover": { backgroundColor: "#2e7d32" },
                   }}
-                  onClick={() => {
-                    window.location.href = "/prestamos";
-                  }}
+                  onClick={() => navigate("/prestamos")}
+                  
                 >
                   Registrar Préstamos
                 </Button>

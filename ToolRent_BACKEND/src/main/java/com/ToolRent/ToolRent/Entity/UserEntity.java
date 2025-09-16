@@ -31,15 +31,9 @@ public class UserEntity {
     @Column(unique = true, nullable = false)
     private String username;
 
-    private String password;
     private String role;
 
     @OneToMany(mappedBy = "client", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JsonManagedReference("client-loans")
     private List<LoanEntity> loans;
-
-    @OneToMany(mappedBy = "createdBy", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    @JsonManagedReference("created-loans")
-    private List<LoanEntity> createdLoans;
-
 }

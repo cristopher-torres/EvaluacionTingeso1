@@ -68,7 +68,10 @@ public class ToolsController {
         return ResponseEntity.ok(tool);
     }
 
-
+    @GetMapping("/available")
+    public List<ToolsEntity> getAvailableTools() {
+        return toolsService.getAvailableTools();
+    }
 
 }
 
