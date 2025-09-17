@@ -3,9 +3,11 @@ package com.ToolRent.ToolRent.Service;
 import com.ToolRent.ToolRent.Entity.*;
 import com.ToolRent.ToolRent.Repository.LoanRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.List;
 
@@ -20,6 +22,9 @@ public class LoanService {
 
     @Autowired
     private ToolsService toolsService;
+
+    @Autowired
+    private KardexService kardexService;
 
     @Transactional
     public LoanEntity createLoan(LoanEntity loan) {
@@ -60,6 +65,15 @@ public class LoanService {
         // Asociar la unidad al préstamo
         loan.setTool(availableUnit);
 
+        KardexEntity movement = new KardexEntity();
+        movement.setType("PRESTAMO");
+        movement.setQuantity(1);
+        movement.setTool(loan.getTool());
+        movement.setUser(loan.getClient());
+        movement.setDateTime(LocalDateTime.now());
+        movement.setLoan(loan);
+        kardexService.save(movement);
+
 
         return loanRepository.save(loan);
     }
@@ -93,6 +107,13 @@ public class LoanService {
 
         // Marcar la unidad como disponible
         toolsService.returnTool(itemTool);
+
+        KardexEntity movement = new KardexEntity();
+        movement.setType("DEVOLUCION");
+        movement.setQuantity(1);
+        movement.setTool(loan.getTool());
+        movement.setDateTime(LocalDateTime.now());
+        kardexService.save(movement);
 
         return loanRepository.save(loan);
 

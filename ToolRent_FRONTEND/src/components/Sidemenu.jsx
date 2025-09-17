@@ -42,7 +42,7 @@ export default function Sidemenu({ open, toggleDrawer }) {
           <ListItemText primary="Registrar un usuario" />
         </ListItemButton>
 
-        <ListItemButton onClick={() => navigate("/extraHours/list")}>
+        <ListItemButton onClick={() => navigate("/tools/decommission")}>
           <ListItemIcon>
             <MoreTimeIcon />
           </ListItemIcon>

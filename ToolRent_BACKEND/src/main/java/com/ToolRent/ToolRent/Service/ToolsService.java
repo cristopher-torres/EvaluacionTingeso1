@@ -1,14 +1,17 @@
 package com.ToolRent.ToolRent.Service;
 
 import com.ToolRent.ToolRent.DTO.ToolStockDTO;
+import com.ToolRent.ToolRent.Entity.KardexEntity;
 import com.ToolRent.ToolRent.Entity.ToolStatus;
 import com.ToolRent.ToolRent.Entity.ToolsEntity;
 import com.ToolRent.ToolRent.Entity.UserEntity;
 import com.ToolRent.ToolRent.Repository.ToolsRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.*;
 
 
@@ -19,6 +22,9 @@ public class ToolsService {
 
     @Autowired
     private UserService userService;
+
+    @Autowired
+    private KardexService kardexService;
 
     // Registrar herramienta
     @Transactional
@@ -48,6 +54,13 @@ public class ToolsService {
 
         List<ToolsEntity> savedUnits = toolsRepository.saveAll(units);
 
+        KardexEntity movement = new KardexEntity();
+        movement.setType("INGRESO");
+        movement.setQuantity(quantity);
+        movement.setTool(savedUnits.get(0));
+        movement.setDateTime(LocalDateTime.now());
+        kardexService.save(movement);
+
         // Devolver la primera unidad creada
         return savedUnits.get(0);
     }
@@ -63,13 +76,20 @@ public class ToolsService {
     }
 
     @Transactional
-    public ToolsEntity decommissionTool(Long toolId, Long userId) {
-        validateAdminPermission(userId);
+    public ToolsEntity decommissionTool(Long toolId) {
 
         ToolsEntity tool = toolsRepository.findById(toolId)
                 .orElseThrow(() -> new RuntimeException("Herramienta no encontrada"));
 
         tool.setStatus(ToolStatus.DADA_DE_BAJA);
+
+        KardexEntity movement = new KardexEntity();
+        movement.setType("BAJA");
+        movement.setQuantity(1);
+        movement.setTool(tool);
+        movement.setDateTime(LocalDateTime.now());
+        kardexService.save(movement);
+
         return toolsRepository.save(tool);
     }
 
@@ -114,6 +134,7 @@ public class ToolsService {
         }
 
         tool.setStatus(ToolStatus.DISPONIBLE);
+
         toolsRepository.save(tool);
     }
 

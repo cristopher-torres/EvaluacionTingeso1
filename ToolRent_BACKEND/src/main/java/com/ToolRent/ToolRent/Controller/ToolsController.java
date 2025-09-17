@@ -35,9 +35,9 @@ public class ToolsController {
 
     @PreAuthorize("hasRole('ADMIN')")
     @PutMapping("/{toolId}/decommission")
-    public ResponseEntity<?> decommissionTool(@PathVariable Long toolId, @RequestParam Long userId) {
+    public ResponseEntity<?> decommissionTool(@PathVariable Long toolId) {
         try {
-            ToolsEntity updatedTool = toolsService.decommissionTool(toolId, userId);
+            ToolsEntity updatedTool = toolsService.decommissionTool(toolId);
             return ResponseEntity.ok(updatedTool);
         } catch (RuntimeException e) {
             return ResponseEntity.status(403).body(e.getMessage());

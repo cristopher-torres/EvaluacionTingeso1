@@ -24,4 +24,8 @@ const getAvailable = () => {
   return httpClient.get('/api/tools/available');
 }  
 
-export default { getAll, create, getStock, update, get, getAvailable };
+const decommission = (toolId, userId) => {
+  return httpClient.put(`/api/tools/${toolId}/decommission`);
+};
+
+export default { getAll, create, getStock, update, get, getAvailable, decommission };

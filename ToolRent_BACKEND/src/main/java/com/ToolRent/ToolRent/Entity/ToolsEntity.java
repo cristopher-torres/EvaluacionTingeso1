@@ -33,4 +33,8 @@ public class ToolsEntity {
     @JsonManagedReference
     private List<LoanEntity> loans;
 
+    @OneToMany(mappedBy = "tool", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonManagedReference(value = "tool-kardex")
+    private List<KardexEntity> kardexMovements;
+
 }

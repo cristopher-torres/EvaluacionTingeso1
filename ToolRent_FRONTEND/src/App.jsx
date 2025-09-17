@@ -10,6 +10,7 @@ import LoanList from './components/LoanList';
 import AddLoan from './components/AddLoan';
 import ActiveLoanList from './components/ActiveLoanList';
 import AddUser from './components/AddUser';
+import ToolDecommission from './components/ToolDecommission';
 
 function App() {
   const { keycloak, initialized } = useKeycloak();
@@ -43,6 +44,7 @@ function App() {
               <Route path="/loans/ActiveLoanList" element={<PrivateRoute element={<ActiveLoanList />} rolesAllowed={['EMPLOYEE', 'ADMIN']} />} />
               <Route path="/loans/list" element={<PrivateRoute element={<LoanList />} rolesAllowed={['EMPLOYEE', 'ADMIN']} />} />
               <Route path="/user/userRegistrer" element={<PrivateRoute element={<AddUser />} rolesAllowed={['ADMIN']} />} />
+              <Route path="/tools/decommission" element={<PrivateRoute element={<ToolDecommission />} rolesAllowed={['ADMIN']} />} />
               <Route path="*" element={<NotFound/>} />
             </Routes>
           </div>

@@ -1,6 +1,7 @@
 package com.ToolRent.ToolRent.Entity;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.Getter;
@@ -8,6 +9,7 @@ import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 import java.util.Date;
+import java.util.List;
 
 @Entity
 @Table(name = "loans")
@@ -46,4 +48,7 @@ public class LoanEntity {
     @Column(nullable = false)
     private LocalDateTime createdLoan;
 
+    @OneToMany(mappedBy = "loan", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonManagedReference(value = "loan-kardex")
+    private List<KardexEntity> kardexMovements;
 }
