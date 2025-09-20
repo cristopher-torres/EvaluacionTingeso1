@@ -36,9 +36,10 @@ public class UserService {
         }
     }
 
-    public void checkDuplicateToolLoan(Long userId, Long toolUnitId) {
-        if (userRepository.existsActiveLoanForTool(userId, toolUnitId)) {
-            throw new RuntimeException("El usuario ya tiene un prestamos activo de esta herramienta");
+    public void checkDuplicateToolLoan(Long userId, String toolName) {
+        int activeLoans = userRepository.countActiveLoansByToolName(userId, toolName);
+        if (activeLoans >= 1) {
+            throw new RuntimeException("El usuario ya tiene el máximo de préstamos permitidos para esta herramienta");
         }
     }
 

@@ -7,6 +7,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.List;
@@ -42,9 +43,6 @@ public class LoanService {
         // Verificar que no tenga más de 5 préstamos activos
         userService.checkActiveLoans(userId);
 
-        // Verificar que no tenga un préstamo activo de la misma herramienta
-        userService.checkDuplicateToolLoan(userId, toolUnitId);
-
         // Validar cliente adicional (si tienes lógica extra)
         validateClient(userId);
 
@@ -52,7 +50,7 @@ public class LoanService {
         if (loan.getStartDate() == null || loan.getScheduledReturnDate() == null) {
             throw new IllegalArgumentException("Se deben ingresar fechas de préstamo y devolución");
         }
-        if (loan.getScheduledReturnDate().before(loan.getStartDate())) {
+        if (loan.getScheduledReturnDate().isBefore(loan.getStartDate())) {
             throw new IllegalArgumentException("La fecha de devolución no puede ser anterior a la fecha de entrega");
         }
 
@@ -64,6 +62,9 @@ public class LoanService {
 
         // Asociar la unidad al préstamo
         loan.setTool(availableUnit);
+
+        // Verificar que no tenga un préstamo activo de la misma herramienta
+        userService.checkDuplicateToolLoan(userId, loan.getTool().getName());
 
         KardexEntity movement = new KardexEntity();
         movement.setType("PRESTAMO");
@@ -99,7 +100,7 @@ public class LoanService {
         }
 
         // Fecha actual de devolución
-        Date returnDate = new Date();
+        LocalDate returnDate = LocalDate.now();
         loan.setReturnDate(returnDate);
         loan.setDelivered(true);
 
@@ -121,11 +122,40 @@ public class LoanService {
 
 
     public List<LoanEntity> getAllLoans() {
-        return loanRepository.findAll();
+        LocalDate now = LocalDate.now();
+        List<LoanEntity> loans = loanRepository.findAll();
+
+        for (LoanEntity loan : loans) {
+            if (loan.getScheduledReturnDate().isBefore(now)
+                    && "Vigente".equals(loan.getLoanStatus())) {
+                loan.setLoanStatus("Atrasado");
+                loanRepository.save(loan);
+            }
+        }
+
+        return loans;
     }
 
+
     // Obtener préstamos activos ordenados
+    @Transactional
     public List<LoanEntity> getActiveLoans() {
-        return loanRepository.findActiveLoansOrderedByDateDesc();
+        LocalDate now = LocalDate.now();
+
+        // Traer los préstamos vigentes
+        List<LoanEntity> loans = loanRepository.findActiveLoansOrderedByDateDesc();
+
+        // Revisar si alguno ya está vencido y actualizarlo
+        for (LoanEntity loan : loans) {
+            if (loan.getScheduledReturnDate().isBefore(now)
+                    && "Vigente".equals(loan.getLoanStatus())) {
+                loan.setLoanStatus("Atrasado");
+                loanRepository.save(loan);
+            }
+        }
+
+        // Retornar la lista ya actualizada
+        return loans;
     }
+
 }

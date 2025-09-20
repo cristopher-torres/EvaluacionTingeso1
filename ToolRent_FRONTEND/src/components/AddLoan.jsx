@@ -57,11 +57,14 @@ const AddLoan = () => {
     const loanData = {
       tool: { id: selectedToolId },
       client: { id: selectedClient },
-      startDate: new Date(startDate),
-      scheduledReturnDate: new Date(scheduledReturnDate),
-      createdLoan: new Date(),
+      // ✅ FIX: Enviar fechas como strings, no como objetos Date
+      startDate: startDate,              // "2025-09-20"
+      scheduledReturnDate: scheduledReturnDate, // "2025-09-21"
+      createdLoan: new Date().toISOString(), // Solo para DateTime
       createdBy: { id: userId },
     };
+
+    console.log("Datos a enviar:", loanData); // Para debug
 
     loanService
       .createLoan(loanData)

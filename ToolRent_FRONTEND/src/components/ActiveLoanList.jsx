@@ -25,6 +25,12 @@ const ActiveLoanList = () => {
     returnLoan(id).then(() => fetchLoans());
   };
 
+  const formatDate = (dateString) => {
+    if (!dateString) return "";
+    const [year, month, day] = dateString.split("-");
+    return `${day}/${month}/${year}`;
+  };
+
   return (
     <div>
       <h2>Préstamos Activos</h2>
@@ -37,6 +43,7 @@ const ActiveLoanList = () => {
               <TableCell>Cliente</TableCell>
               <TableCell>Inicio</TableCell>
               <TableCell>Fecha límite</TableCell>
+              <TableCell>Estado</TableCell>
               <TableCell>Acción</TableCell>
             </TableRow>
           </TableHead>
@@ -46,8 +53,9 @@ const ActiveLoanList = () => {
                 <TableCell>{loan.id}</TableCell>
                 <TableCell>{loan.tool?.id}</TableCell>
                 <TableCell>{loan.client?.id}</TableCell>
-                <TableCell>{new Date(loan.startDate).toLocaleDateString()}</TableCell>
-                <TableCell>{new Date(loan.scheduledReturnDate).toLocaleDateString()}</TableCell>
+                <TableCell>{formatDate(loan.startDate)}</TableCell>
+                <TableCell>{formatDate(loan.scheduledReturnDate)}</TableCell>
+                <TableCell>{loan.loanStatus}</TableCell>
                 <TableCell>
                   <Button variant="contained" color="success" onClick={()=>handleReturn(loan.id)}>Devolver</Button>
                 </TableCell>

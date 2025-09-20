@@ -1,12 +1,14 @@
 package com.ToolRent.ToolRent.Entity;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.List;
@@ -24,23 +26,24 @@ public class LoanEntity {
 
     @ManyToOne
     @JoinColumn(name = "tool_id", nullable = false)
-    @JsonBackReference
+    @JsonIgnoreProperties({"loans", "kardexMovements"})
     private ToolsEntity tool;
 
     @ManyToOne
     @JoinColumn(name = "client_id")
-    @JsonBackReference("client-loans")
+    @JsonIgnoreProperties({"loans", "kardexMovements"})
     private UserEntity client;
 
     @Column(nullable = false)
-    private Date startDate;    //La fecha en que el cliente retira la herramienta.
+    private LocalDate startDate;    //La fecha en que el cliente retira la herramienta.
 
     @Column(nullable = false)
-    private Date scheduledReturnDate; //La fecha límite para devolver la herramienta.
+    private LocalDate scheduledReturnDate; //La fecha límite para devolver la herramienta.
 
-    private Date returnDate;   //La fecha en que el cliente devuelve la herramienta.
+    private LocalDate returnDate;   //La fecha en que el cliente devuelve la herramienta.
 
     private boolean delivered = false;
+    private String loanStatus = "Vigente";
 
     private double fine;
     private double loanPrice;

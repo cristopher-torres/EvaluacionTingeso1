@@ -30,7 +30,6 @@ public class ToolsEntity {
     private ToolStatus status;
 
     @OneToMany(mappedBy = "tool", cascade = CascadeType.ALL, orphanRemoval = true)
-    @JsonManagedReference
     private List<LoanEntity> loans;
 
     @OneToMany(mappedBy = "tool", cascade = CascadeType.ALL, orphanRemoval = true)

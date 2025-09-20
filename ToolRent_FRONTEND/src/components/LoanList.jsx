@@ -15,6 +15,12 @@ const LoanList = () => {
     getLoans().then(res => setLoans(res.data));
   }, []);
 
+  const formatDate = (dateString) => {
+    if (!dateString) return "";
+    const [year, month, day] = dateString.split("-");
+    return `${day}/${month}/${year}`;
+  };
+
   return (
     <div>
       <h2>Listado de Préstamos</h2>
@@ -34,10 +40,10 @@ const LoanList = () => {
             {loans.map(loan => (
               <TableRow key={loan.id}>
                 <TableCell>{loan.id}</TableCell>
-                <TableCell>{loan.tool?.name}</TableCell>
-                <TableCell>{loan.client?.username}</TableCell>
-                <TableCell>{new Date(loan.startDate).toLocaleDateString()}</TableCell>
-                <TableCell>{new Date(loan.scheduledReturnDate).toLocaleDateString()}</TableCell>
+                <TableCell>{loan.tool?.id}</TableCell>
+                <TableCell>{loan.client?.id}</TableCell>
+                <TableCell>{formatDate(loan.startDate)}</TableCell>
+                <TableCell>{formatDate(loan.scheduledReturnDate)}</TableCell>
                 <TableCell>{loan.delivered ? "Sí" : "No"}</TableCell>
               </TableRow>
             ))}

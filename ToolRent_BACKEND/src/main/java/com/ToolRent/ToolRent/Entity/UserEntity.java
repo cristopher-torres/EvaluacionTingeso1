@@ -35,7 +35,6 @@ public class UserEntity {
     private String role;
 
     @OneToMany(mappedBy = "client", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    @JsonManagedReference("client-loans")
     private List<LoanEntity> loans;
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)

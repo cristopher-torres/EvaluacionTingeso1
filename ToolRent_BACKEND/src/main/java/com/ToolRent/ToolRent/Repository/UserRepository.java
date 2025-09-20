@@ -19,10 +19,11 @@ public interface UserRepository extends JpaRepository<UserEntity, Long> {
             "AND l.delivered = false")
     long countActiveLoans(@Param("userId") Long userId);
 
-    @Query("SELECT CASE WHEN COUNT(l) > 0 THEN true ELSE false END " +
+    @Query("SELECT COUNT(l) " +
             "FROM LoanEntity l " +
-            "WHERE l.client.id = :userId " +
-            "AND l.tool.id = :toolId " +
+            "WHERE l.client.id = :clientId " +
+            "AND l.tool.name = :toolName " +
             "AND l.delivered = false")
-    boolean existsActiveLoanForTool(@Param("userId") Long userId, @Param("toolId") Long toolId);
+    int countActiveLoansByToolName(@Param("clientId") Long clientId, @Param("toolName") String toolName);
+
 }
