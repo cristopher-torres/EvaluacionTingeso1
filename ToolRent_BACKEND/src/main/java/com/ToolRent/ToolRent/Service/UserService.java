@@ -4,6 +4,7 @@ import com.ToolRent.ToolRent.Entity.UserEntity;
 import com.ToolRent.ToolRent.Repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -43,5 +44,29 @@ public class UserService {
         }
     }
 
+    @Transactional
+    public void restrictUserById(Long userId) {
+        UserEntity user = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+
+        if (!"RESTRINGIDO".equalsIgnoreCase(user.getStatus())) {
+            user.setStatus("RESTRINGIDO");
+            userRepository.save(user);
+        }
+    }
+
+    @Transactional
+    public void updateUserStatus(Long userId, boolean finePaid) {
+        UserEntity user = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+
+        if (finePaid) {
+            user.setStatus("ACTIVO");  // Usuario libre de restricciones
+        } else {
+            user.setStatus("RESTRINGIDO");  // Usuario con multa pendiente
+        }
+
+        userRepository.save(user);
+    }
 
 }

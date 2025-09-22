@@ -18,6 +18,7 @@ const AddEditTool = () => {
   const [replacementValue, setReplacementValue] = useState("");
   const [dailyRate, setDailyRate] = useState("");
   const [dailyLateRate, setDailyLateRate] = useState("");
+  const [repairValue, setRepairValue] = useState("");
   const [status, setStatus] = useState("DISPONIBLE"); // Valor por defecto
 
   const { id } = useParams();
@@ -36,6 +37,7 @@ const AddEditTool = () => {
       replacementValue: Number(replacementValue),
       dailyRate: Number(dailyRate),
       dailyLateRate: Number(dailyLateRate),
+      repairValue: Number(repairValue),
       id,
       status
     };
@@ -74,6 +76,7 @@ const AddEditTool = () => {
           setReplacementValue(tool.replacementValue);
           setDailyRate(tool.dailyRate);
           setDailyLateRate(tool.dailyLateRate);
+          setRepairValue(tool.repairValue);
           setStatus(tool.status); 
         })
         .catch((error) => console.error("Error al cargar herramienta ❌", error));
@@ -180,6 +183,17 @@ const AddEditTool = () => {
             value={dailyLateRate}
             variant="outlined"
             onChange={(e) => setDailyLateRate(e.target.value)}
+          />
+        </FormControl>
+
+        <FormControl fullWidth>
+          <TextField
+            id="repairValue"
+            label="Costo de Reparación"
+            type="number"
+            value={repairValue}
+            variant="outlined"
+            onChange={(e) => setRepairValue(e.target.value)}
           />
         </FormControl>
 

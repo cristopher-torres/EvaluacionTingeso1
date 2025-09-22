@@ -3,6 +3,7 @@ package com.ToolRent.ToolRent.Service;
 import com.ToolRent.ToolRent.Entity.*;
 import com.ToolRent.ToolRent.Repository.LoanRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -66,6 +67,17 @@ public class LoanService {
         // Verificar que no tenga un préstamo activo de la misma herramienta
         userService.checkDuplicateToolLoan(userId, loan.getTool().getName());
 
+        // Calcular el precio del pretamo
+        long days = java.time.temporal.ChronoUnit.DAYS.between(
+                loan.getStartDate(),
+                loan.getScheduledReturnDate()
+        );
+        if (days <= 0) {
+            days = 1; // mínimo 1 día de cobro
+        }
+        double price = days * availableUnit.getDailyRate();
+        loan.setLoanPrice(price);
+
         KardexEntity movement = new KardexEntity();
         movement.setType("PRESTAMO");
         movement.setQuantity(1);
@@ -89,49 +101,65 @@ public class LoanService {
     }
 
 
-    public LoanEntity returnLoan(Long loanId){
-        // Buscar el préstamo en la base de datos
+    public LoanEntity returnLoan(Long loanId,  boolean damaged, boolean irreparable) {
         LoanEntity loan = loanRepository.findById(loanId)
                 .orElseThrow(() -> new RuntimeException("Préstamo no encontrado"));
 
-        // Validar que no haya sido devuelto
         if (loan.isDelivered()) {
             throw new RuntimeException("El préstamo ya fue devuelto");
         }
 
-        // Fecha actual de devolución
-        LocalDate returnDate = LocalDate.now();
-        loan.setReturnDate(returnDate);
+        LocalDate today = LocalDate.now();
+        loan.setReturnDate(today);
         loan.setDelivered(true);
 
-        long itemTool = loan.getTool().getId();
+        // Calcular precio real del préstamo
+        long daysUsed = java.time.temporal.ChronoUnit.DAYS.between(
+                loan.getStartDate(),
+                today
+        );
+        if (daysUsed <= 0) daysUsed = 1; // mínimo 1 día
+        double realPrice = daysUsed * loan.getTool().getDailyRate();
+        loan.setLoanPrice(realPrice);
 
-        // Marcar la unidad como disponible
-        toolsService.returnTool(itemTool);
+        // Manejar daños
+        double damagePrice = 0.0;
+        ToolsEntity tool = loan.getTool();
+        if (damaged) {
+            if (irreparable) {
+                tool.setStatus(ToolStatus.DADA_DE_BAJA);
+                damagePrice = tool.getReplacementValue();
+            } else {
+                tool.setStatus(ToolStatus.EN_REPARACION);
+                damagePrice = tool.getRepairValue();
+            }
+        } else {
+            // Solo liberar si no hay daño
+            toolsService.returnTool(tool.getId());
+        }
 
-        KardexEntity movement = new KardexEntity();
-        movement.setType("DEVOLUCION");
-        movement.setQuantity(1);
-        movement.setTool(loan.getTool());
-        movement.setDateTime(LocalDateTime.now());
-        kardexService.save(movement);
+        loan.setDamagePrice(damagePrice);
+        loan.setTotal(loan.getLoanPrice() + damagePrice + loan.getFine());
+        loan.setFineTotal(loan.getFine() + damagePrice);
+        loan.setLoanStatus("DEVUELTO");
+
+
+        // Registrar solo la devolución en Kardex
+        KardexEntity devolucion = new KardexEntity();
+        devolucion.setType("DEVOLUCION");
+        devolucion.setTool(loan.getTool());
+        devolucion.setUser(loan.getClient());
+        devolucion.setDateTime(LocalDateTime.now());
+        devolucion.setLoan(loan);
+        kardexService.save(devolucion);
 
         return loanRepository.save(loan);
-
     }
 
 
     public List<LoanEntity> getAllLoans() {
         LocalDate now = LocalDate.now();
         List<LoanEntity> loans = loanRepository.findAll();
-
-        for (LoanEntity loan : loans) {
-            if (loan.getScheduledReturnDate().isBefore(now)
-                    && "Vigente".equals(loan.getLoanStatus())) {
-                loan.setLoanStatus("Atrasado");
-                loanRepository.save(loan);
-            }
-        }
 
         return loans;
     }
@@ -145,17 +173,49 @@ public class LoanService {
         // Traer los préstamos vigentes
         List<LoanEntity> loans = loanRepository.findActiveLoansOrderedByDateDesc();
 
-        // Revisar si alguno ya está vencido y actualizarlo
-        for (LoanEntity loan : loans) {
-            if (loan.getScheduledReturnDate().isBefore(now)
-                    && "Vigente".equals(loan.getLoanStatus())) {
-                loan.setLoanStatus("Atrasado");
-                loanRepository.save(loan);
-            }
-        }
-
         // Retornar la lista ya actualizada
         return loans;
     }
+
+    @Scheduled(cron = "0 0 0 * * ?") // todos los días a medianoche
+    @Transactional
+    public void updateOverdueLoans() {
+        LocalDate today = LocalDate.now();
+        List<LoanEntity> activeLoans = loanRepository.findActiveLoansOrderedByDateDesc();
+
+        for (LoanEntity loan : activeLoans) {
+            if (!loan.isDelivered() && loan.getScheduledReturnDate().isBefore(today)) {
+                loan.setLoanStatus("ATRASADO");
+
+                //Restringir al cliente por futuros prestamos
+                long client = loan.getClient().getId();
+                userService.restrictUserById(client);
+
+                // Calcular días de atraso
+                long daysLate = java.time.temporal.ChronoUnit.DAYS.between(
+                        loan.getScheduledReturnDate(),
+                        today
+                );
+                if (daysLate < 0) {
+                    daysLate = 0;
+                }
+
+                // Calcular multa acumulada
+                double fine = daysLate * loan.getTool().getDailyLateRate();
+                loan.setFine(fine);
+
+                loanRepository.save(loan);
+            }
+        }
+    }
+
+    public LoanEntity updateFinePaid(Long loanId, boolean finePaid) {
+        LoanEntity loan = loanRepository.findById(loanId)
+                .orElseThrow(() -> new RuntimeException("Préstamo no encontrado"));
+        loan.setFinePaid(finePaid);
+        userService.updateUserStatus(loan.getClient().getId(), finePaid);
+        return loanRepository.save(loan);
+    }
+
 
 }

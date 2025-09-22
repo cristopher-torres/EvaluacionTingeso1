@@ -27,9 +27,13 @@ public class LoanController {
 
     @PreAuthorize("hasAnyRole('EMPLOYEE','ADMIN')")
     @PostMapping("/{loanId}/return")
-    public LoanEntity returnLoan(@PathVariable Long loanId) {
-        return loanService.returnLoan(loanId);
+    public LoanEntity returnLoan(
+            @PathVariable Long loanId,
+            @RequestParam(required = false, defaultValue = "false") boolean damaged,
+            @RequestParam(required = false, defaultValue = "false") boolean irreparable) {
+        return loanService.returnLoan(loanId, damaged, irreparable);
     }
+
     @PreAuthorize("hasAnyRole('EMPLOYEE','ADMIN')")
     @GetMapping("/getLoans")
     public ResponseEntity<List<LoanEntity>> getAllLoans() {
@@ -43,5 +47,11 @@ public class LoanController {
     public ResponseEntity<List<LoanEntity>> getActiveLoans() {
         List<LoanEntity> loans = loanService.getActiveLoans();
         return ResponseEntity.ok(loans);
+    }
+
+    @PreAuthorize("hasAnyRole('EMPLOYEE','ADMIN')")
+    @PutMapping("/{loanId}/finePaid")
+    public LoanEntity updateFinePaid(@PathVariable Long loanId, @RequestParam boolean finePaid) {
+        return loanService.updateFinePaid(loanId, finePaid);
     }
 }

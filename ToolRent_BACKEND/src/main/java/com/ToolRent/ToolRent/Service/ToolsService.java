@@ -48,6 +48,7 @@ public class ToolsService {
             unit.setReplacementValue(tool.getReplacementValue());
             unit.setDailyRate(tool.getDailyRate());
             unit.setDailyLateRate(tool.getDailyLateRate());
+            unit.setRepairValue(tool.getRepairValue());
             unit.setStatus(ToolStatus.DISPONIBLE);
             units.add(unit);
         }
@@ -63,16 +64,6 @@ public class ToolsService {
 
         // Devolver la primera unidad creada
         return savedUnits.get(0);
-    }
-
-    private void validateAdminPermission(Long userId) {
-        UserEntity user = userService.findById(userId);
-
-        String role = user.getRole();
-
-        if (!"Administrador".equalsIgnoreCase(role)) {
-            throw new RuntimeException("Solo un administrador puede realizar esta acción");
-        }
     }
 
     @Transactional
@@ -170,6 +161,7 @@ public class ToolsService {
         tool.setReplacementValue(toolDetails.getReplacementValue());
         tool.setDailyRate(toolDetails.getDailyRate());
         tool.setDailyLateRate(toolDetails.getDailyLateRate());
+        tool.setRepairValue(toolDetails.getRepairValue());
         tool.setStatus(toolDetails.getStatus());
         // Ojo: el stock lo puedes decidir si se actualiza aquí o lo dejas fijo
 

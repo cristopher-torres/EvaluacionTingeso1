@@ -36,5 +36,11 @@ public class UserController {
         UserEntity user = userService.findById(id);
         return ResponseEntity.ok(user);
     }
+
+    @PutMapping("/{userId}/status")
+    public ResponseEntity<String> updateUserStatus(@PathVariable Long userId, @RequestParam boolean finePaid) {
+        userService.updateUserStatus(userId, finePaid);
+        return ResponseEntity.ok("Estado del usuario actualizado correctamente");
+    }
 }
 

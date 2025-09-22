@@ -23,6 +23,7 @@ public class ToolsEntity {
     private String name;
     private String category;
     private double replacementValue;
+    private double repairValue;
     private double dailyRate;
     private double dailyLateRate;
 

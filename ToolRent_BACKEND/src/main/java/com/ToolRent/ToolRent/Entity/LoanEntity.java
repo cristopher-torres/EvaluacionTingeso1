@@ -47,6 +47,12 @@ public class LoanEntity {
 
     private double fine;
     private double loanPrice;
+    private double damagePrice;
+    private double fineTotal;
+    private double total;
+
+    @Column(name = "is_fine_paid", nullable = false)
+    private boolean finePaid = true;
 
     @Column(nullable = false)
     private LocalDateTime createdLoan;

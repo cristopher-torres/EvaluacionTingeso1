@@ -12,4 +12,8 @@ const get = (id) => {
   return httpClient.get(`api/users/${id}`);
 }
 
-export default { getAllClients, createUser, get };
+const updateUserStatus = (userId, finePaid) => {
+    return httpClient.put(`/api/users/${userId}/status?finePaid=${finePaid}`);
+}
+
+export default { getAllClients, createUser, get, updateUserStatus };
