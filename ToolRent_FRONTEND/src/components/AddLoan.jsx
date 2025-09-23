@@ -18,7 +18,7 @@ const AddLoan = () => {
   const { keycloak } = useKeycloak();
   const navigate = useNavigate();
 
-  const userId = keycloak?.tokenParsed?.sub; // id del usuario autenticado
+  const userId = keycloak?.tokenParsed?.sub; 
 
   const [tools, setTools] = useState([]);
   const [clients, setClients] = useState([]);
@@ -57,10 +57,9 @@ const AddLoan = () => {
     const loanData = {
       tool: { id: selectedToolId },
       client: { id: selectedClient },
-      // ✅ FIX: Enviar fechas como strings, no como objetos Date
-      startDate: startDate,              // "2025-09-20"
-      scheduledReturnDate: scheduledReturnDate, // "2025-09-21"
-      createdLoan: new Date().toISOString(), // Solo para DateTime
+      startDate: startDate,              
+      scheduledReturnDate: scheduledReturnDate, 
+      createdLoan: new Date().toISOString(), 
       createdBy: { id: userId },
     };
 

@@ -4,7 +4,6 @@ import com.ToolRent.ToolRent.Entity.*;
 import com.ToolRent.ToolRent.Repository.LoanRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -78,11 +77,13 @@ public class LoanService {
         double price = days * availableUnit.getDailyRate();
         loan.setLoanPrice(price);
 
+        String emailUsuario = userService.getEmailFromToken();
+
         KardexEntity movement = new KardexEntity();
         movement.setType("PRESTAMO");
         movement.setQuantity(1);
         movement.setTool(loan.getTool());
-        movement.setUser(loan.getClient());
+        movement.setUserEmail(emailUsuario);
         movement.setDateTime(LocalDateTime.now());
         movement.setLoan(loan);
         kardexService.save(movement);
@@ -125,12 +126,22 @@ public class LoanService {
         // Manejar daños
         double damagePrice = 0.0;
         ToolsEntity tool = loan.getTool();
+        String emailUsuario = userService.getEmailFromToken();
         if (damaged) {
             if (irreparable) {
-                tool.setStatus(ToolStatus.DADA_DE_BAJA);
+                toolsService.decommissionTool(tool.getId());
                 damagePrice = tool.getReplacementValue();
             } else {
                 tool.setStatus(ToolStatus.EN_REPARACION);
+
+                KardexEntity reparacion = new KardexEntity();
+                reparacion.setType("REPARACION");
+                reparacion.setTool(loan.getTool());
+                reparacion.setUserEmail(emailUsuario);
+                reparacion.setDateTime(LocalDateTime.now());
+                reparacion.setLoan(loan);
+                kardexService.save(reparacion);
+
                 damagePrice = tool.getRepairValue();
             }
         } else {
@@ -144,11 +155,12 @@ public class LoanService {
         loan.setLoanStatus("DEVUELTO");
 
 
-        // Registrar solo la devolución en Kardex
+        // Registrar la devolución en Kardex
         KardexEntity devolucion = new KardexEntity();
         devolucion.setType("DEVOLUCION");
         devolucion.setTool(loan.getTool());
-        devolucion.setUser(loan.getClient());
+        devolucion.setQuantity(1);
+        devolucion.setUserEmail(emailUsuario);
         devolucion.setDateTime(LocalDateTime.now());
         devolucion.setLoan(loan);
         kardexService.save(devolucion);
@@ -216,6 +228,5 @@ public class LoanService {
         userService.updateUserStatus(loan.getClient().getId(), finePaid);
         return loanRepository.save(loan);
     }
-
 
 }

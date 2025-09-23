@@ -5,6 +5,7 @@ import com.ToolRent.ToolRent.Entity.LoanEntity;
 import com.ToolRent.ToolRent.Entity.ToolsEntity;
 import com.ToolRent.ToolRent.Service.KardexService;
 import com.ToolRent.ToolRent.Service.LoanService;
+import com.ToolRent.ToolRent.Service.ToolsService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
@@ -18,12 +19,16 @@ import java.util.List;
 @RequestMapping("/api/kardex")
 @CrossOrigin("*")
 public class KardexController {
-
+    @Autowired
     private KardexService kardexService;
+
+    @Autowired
+    private ToolsService toolsService;
 
 
     @GetMapping("/tool/{toolId}")
-    public List<KardexEntity> getMovementsByTool(@PathVariable ToolsEntity tool) {
+    public List<KardexEntity> getMovementsByTool(@PathVariable Long toolId) {
+        ToolsEntity tool = toolsService.findById(toolId);
         return kardexService.getMovementsByTool(tool);
     }
 

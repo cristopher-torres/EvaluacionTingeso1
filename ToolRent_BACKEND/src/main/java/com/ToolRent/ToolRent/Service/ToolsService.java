@@ -39,8 +39,6 @@ public class ToolsService {
             throw new IllegalArgumentException("El valor de reposición debe ser mayor que 0");
         }
 
-        // 2. Crear unidades automáticamente
-        List<ToolsEntity> units = new ArrayList<>();
         for (int i = 0; i < quantity; i++) {
             ToolsEntity unit = new ToolsEntity();
             unit.setName(tool.getName());
@@ -50,20 +48,22 @@ public class ToolsService {
             unit.setDailyLateRate(tool.getDailyLateRate());
             unit.setRepairValue(tool.getRepairValue());
             unit.setStatus(ToolStatus.DISPONIBLE);
-            units.add(unit);
+
+            ToolsEntity savedTool = toolsRepository.save(unit);
+
+            String emailUsuario = userService.getEmailFromToken();
+
+            KardexEntity movement = new KardexEntity();
+            movement.setType("INGRESO");
+            movement.setQuantity(1);
+            movement.setTool(savedTool);
+            movement.setUserEmail(emailUsuario);
+            movement.setDateTime(LocalDateTime.now());
+            kardexService.save(movement);
         }
 
-        List<ToolsEntity> savedUnits = toolsRepository.saveAll(units);
 
-        KardexEntity movement = new KardexEntity();
-        movement.setType("INGRESO");
-        movement.setQuantity(quantity);
-        movement.setTool(savedUnits.get(0));
-        movement.setDateTime(LocalDateTime.now());
-        kardexService.save(movement);
-
-        // Devolver la primera unidad creada
-        return savedUnits.get(0);
+        return toolsRepository.save(tool);
     }
 
     @Transactional
@@ -73,11 +73,13 @@ public class ToolsService {
                 .orElseThrow(() -> new RuntimeException("Herramienta no encontrada"));
 
         tool.setStatus(ToolStatus.DADA_DE_BAJA);
+        String emailUsuario = userService.getEmailFromToken();
 
         KardexEntity movement = new KardexEntity();
         movement.setType("BAJA");
         movement.setQuantity(1);
         movement.setTool(tool);
+        movement.setUserEmail(emailUsuario);
         movement.setDateTime(LocalDateTime.now());
         kardexService.save(movement);
 

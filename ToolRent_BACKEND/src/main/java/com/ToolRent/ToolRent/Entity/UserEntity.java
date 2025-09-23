@@ -36,8 +36,4 @@ public class UserEntity {
 
     @OneToMany(mappedBy = "client", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<LoanEntity> loans;
-
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
-    @JsonIgnore
-    private List<KardexEntity> kardexMovements;
 }

@@ -11,6 +11,8 @@ import AddLoan from './components/AddLoan';
 import ActiveLoanList from './components/ActiveLoanList';
 import AddUser from './components/AddUser';
 import ToolDecommission from './components/ToolDecommission';
+import KardexList from './components/KardexList';
+
 
 function App() {
   const { keycloak, initialized } = useKeycloak();
@@ -45,6 +47,7 @@ function App() {
               <Route path="/loans/list" element={<PrivateRoute element={<LoanList />} rolesAllowed={['EMPLOYEE', 'ADMIN']} />} />
               <Route path="/user/userRegistrer" element={<PrivateRoute element={<AddUser />} rolesAllowed={['ADMIN']} />} />
               <Route path="/tools/decommission" element={<PrivateRoute element={<ToolDecommission />} rolesAllowed={['ADMIN']} />} />
+              <Route path="tool/movementHistory" element={<PrivateRoute element={<KardexList />} rolesAllowed={['EMPLOYEE', 'ADMIN']} />} />
               <Route path="*" element={<NotFound/>} />
             </Routes>
           </div>

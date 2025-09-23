@@ -3,8 +3,12 @@ package com.ToolRent.ToolRent.Service;
 import com.ToolRent.ToolRent.Entity.UserEntity;
 import com.ToolRent.ToolRent.Repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.oauth2.jwt.Jwt;
 
 import java.util.List;
 
@@ -67,6 +71,14 @@ public class UserService {
         }
 
         userRepository.save(user);
+    }
+
+    public String getEmailFromToken() {
+        Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        if (principal instanceof Jwt jwt) {
+            return jwt.getClaim("email");
+        }
+        return "unknown";
     }
 
 }

@@ -34,10 +34,9 @@ public class KardexEntity {
     @JsonBackReference(value = "tool-kardex")
     private ToolsEntity tool;
 
-    @ManyToOne
-    @JoinColumn(name = "user_id")
-    @JsonIgnore
-    private UserEntity user;
+    @Column(nullable = false)
+    private String userEmail;
+
 
     @ManyToOne
     @JoinColumn(name = "loan_id")
