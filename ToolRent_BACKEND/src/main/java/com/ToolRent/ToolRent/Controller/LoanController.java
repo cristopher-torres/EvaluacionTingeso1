@@ -1,13 +1,16 @@
 package com.ToolRent.ToolRent.Controller;
 
 import com.ToolRent.ToolRent.Entity.LoanEntity;
+import com.ToolRent.ToolRent.Entity.UserEntity;
 import com.ToolRent.ToolRent.Service.LoanService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @RestController
@@ -53,5 +56,34 @@ public class LoanController {
     @PutMapping("/{loanId}/finePaid")
     public LoanEntity updateFinePaid(@PathVariable Long loanId, @RequestParam boolean finePaid) {
         return loanService.updateFinePaid(loanId, finePaid);
+    }
+
+    @PreAuthorize("hasAnyRole('EMPLOYEE','ADMIN')")
+    @GetMapping("/loansActiveByDate")
+    public ResponseEntity<List<LoanEntity>> getActiveLoansByDate(
+            @RequestParam LocalDate startDate,
+            @RequestParam LocalDate endDate) {
+
+        List<LoanEntity> loans = loanService.getActiveLoansByDate(startDate, endDate);
+        return ResponseEntity.ok(loans);
+    }
+
+    // Obtener todos los clientes con préstamos atrasados
+    @GetMapping("/overdueClients")
+    @PreAuthorize("hasAnyRole('ADMIN','MANAGER')")
+    public List<UserEntity> getOverdueClients() {
+        LocalDate today = LocalDate.now();
+        return loanService.getClientsWithOverdueLoans(today);
+    }
+
+    // Obtener clientes con préstamos atrasados filtrados por rango de fechas
+    @GetMapping("/overdueClients/dateRange")
+    @PreAuthorize("hasAnyRole('ADMIN','MANAGER')")
+    public List<UserEntity> getOverdueClientsByDate(
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate
+    ) {
+        LocalDate today = LocalDate.now();
+        return loanService.getClientsWithOverdueLoans(today, startDate, endDate);
     }
 }

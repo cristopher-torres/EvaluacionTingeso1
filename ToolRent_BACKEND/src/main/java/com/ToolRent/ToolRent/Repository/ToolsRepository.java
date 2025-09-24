@@ -16,11 +16,10 @@ public interface ToolsRepository extends JpaRepository<ToolsEntity, Long> {
     // Buscar la primera herramienta disponible por nombre
     Optional<ToolsEntity> findByIdAndStatus(Long id, ToolStatus status);
 
-    List<ToolsEntity> findByName(String name);
     @Query("SELECT DISTINCT t.name, t.category FROM ToolsEntity t")
-
     List<Object[]> findDistinctNameAndCategory();
 
     int countByNameAndCategoryAndStatus(String name, String category, ToolStatus status);
     List<ToolsEntity> findByStatus(ToolStatus status);
+
 }

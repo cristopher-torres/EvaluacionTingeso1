@@ -12,6 +12,8 @@ import ActiveLoanList from './components/ActiveLoanList';
 import AddUser from './components/AddUser';
 import ToolDecommission from './components/ToolDecommission';
 import KardexList from './components/KardexList';
+import ReportLateClient from './components/ReportLateClient';
+
 
 
 function App() {
@@ -48,6 +50,7 @@ function App() {
               <Route path="/user/userRegistrer" element={<PrivateRoute element={<AddUser />} rolesAllowed={['ADMIN']} />} />
               <Route path="/tools/decommission" element={<PrivateRoute element={<ToolDecommission />} rolesAllowed={['ADMIN']} />} />
               <Route path="tool/movementHistory" element={<PrivateRoute element={<KardexList />} rolesAllowed={['EMPLOYEE', 'ADMIN']} />} />
+              <Route path="/reports/lateClients" element={<PrivateRoute element={<ReportLateClient />} rolesAllowed={['EMPLOYEE', 'ADMIN']} />} />
               <Route path="*" element={<NotFound/>} />
             </Routes>
           </div>

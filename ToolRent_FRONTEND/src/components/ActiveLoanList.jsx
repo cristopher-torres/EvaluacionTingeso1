@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { getActiveLoans, returnLoan, updateFinePaid } from "../services/loan.service";
+import { getActiveLoans, getActiveLoansByDate, returnLoan, updateFinePaid } from "../services/loan.service";
 import Table from "@mui/material/Table";
 import TableBody from "@mui/material/TableBody";
 import TableCell from "@mui/material/TableCell";
@@ -15,10 +15,12 @@ import DialogContent from "@mui/material/DialogContent";
 import DialogTitle from "@mui/material/DialogTitle";
 import FormControlLabel from "@mui/material/FormControlLabel";
 import Checkbox from "@mui/material/Checkbox";
+import Box from "@mui/material/Box";
 
 const ActiveLoanList = () => {
   const [loans, setLoans] = useState([]);
-  const [filter, setFilter] = useState("");
+  const [startDate, setStartDate] = useState("");
+  const [endDate, setEndDate] = useState("");
 
   const [openDialog, setOpenDialog] = useState(false);
   const [selectedLoan, setSelectedLoan] = useState(null);
@@ -28,12 +30,17 @@ const ActiveLoanList = () => {
   const [openReceiptDialog, setOpenReceiptDialog] = useState(false);
   const [loanReceipt, setLoanReceipt] = useState(null);
 
-  const fetchLoans = () => {
+  const fetchAllLoans = () => {
     getActiveLoans().then(res => setLoans(res.data));
   };
 
+  const fetchLoansByDate = () => {
+    if (!startDate || !endDate) return;
+    getActiveLoansByDate(startDate, endDate).then(res => setLoans(res.data));
+  };
+
   useEffect(() => {
-    fetchLoans();
+    fetchAllLoans();
   }, []);
 
   const handleOpenDialog = (loan) => {
@@ -51,7 +58,7 @@ const ActiveLoanList = () => {
   const handleReturn = () => {
     if (!selectedLoan) return;
 
-    returnLoan(selectedLoan.id, damaged, irreparable, true).then(res => {
+    returnLoan(selectedLoan.id, damaged, irreparable).then(res => {
       setLoanReceipt(res.data);
       setOpenReceiptDialog(true);
       setOpenDialog(false);
@@ -66,11 +73,10 @@ const ActiveLoanList = () => {
         ...prev,
         finePaid: paid
       }));
-      
-      
+
       setOpenReceiptDialog(false);
       setSelectedLoan(null);
-      fetchLoans();
+      fetchAllLoans();
     }).catch(error => {
       console.error('Error actualizando estado de multa:', error);
     });
@@ -82,24 +88,43 @@ const ActiveLoanList = () => {
     return `${day}/${month}/${year}`;
   };
 
-  const filteredLoans = loans.filter(loan => {
-    if (!filter) return true;
-    const rut = loan.client?.rut || "";
-    return rut.includes(filter) || loan.id.toString().includes(filter);
-  });
-
   return (
     <div>
       <h2>Préstamos Activos</h2>
 
-      <TextField
-        label="Filtrar por RUT o ID del préstamo"
-        variant="outlined"
-        value={filter}
-        onChange={(e) => setFilter(e.target.value)}
-        style={{ marginBottom: "20px" }}
-      />
+      {/* Filtros de fechas */}
+      <Box display="flex" gap={2} mb={2}>
+        <TextField
+          type="date"
+          label="Desde"
+          InputLabelProps={{ shrink: true }}
+          value={startDate}
+          onChange={(e) => setStartDate(e.target.value)}
+        />
+        <TextField
+          type="date"
+          label="Hasta"
+          InputLabelProps={{ shrink: true }}
+          value={endDate}
+          onChange={(e) => setEndDate(e.target.value)}
+        />
+        <Button
+          variant="contained"
+          sx={{ backgroundColor: "#1b5e20", "&:hover": { backgroundColor: "#145a16" } }}
+          onClick={fetchLoansByDate}
+        >
+          Filtrar por fechas
+        </Button>
+        <Button
+          variant="contained"
+          sx={{ backgroundColor: "#1b5e20", "&:hover": { backgroundColor: "#145a16" } }}
+          onClick={fetchAllLoans}
+        >
+          Ver todos
+        </Button>
+      </Box>
 
+      {/* Tabla de préstamos */}
       <TableContainer component={Paper}>
         <Table>
           <TableHead>
@@ -107,7 +132,6 @@ const ActiveLoanList = () => {
               <TableCell>ID</TableCell>
               <TableCell>Herramienta</TableCell>
               <TableCell>Cliente (ID)</TableCell>
-              <TableCell>RUT (Cliente)</TableCell>
               <TableCell>Inicio</TableCell>
               <TableCell>Fecha límite</TableCell>
               <TableCell>Estado</TableCell>
@@ -115,19 +139,18 @@ const ActiveLoanList = () => {
             </TableRow>
           </TableHead>
           <TableBody>
-            {filteredLoans.map(loan => (
+            {loans.map(loan => (
               <TableRow key={loan.id}>
                 <TableCell>{loan.id}</TableCell>
                 <TableCell>{loan.tool?.name}</TableCell>
                 <TableCell>{loan.client?.id}</TableCell>
-                <TableCell>{loan.client?.rut}</TableCell>
                 <TableCell>{formatDate(loan.startDate)}</TableCell>
                 <TableCell>{formatDate(loan.scheduledReturnDate)}</TableCell>
                 <TableCell>{loan.loanStatus}</TableCell>
                 <TableCell>
-                  <Button 
-                    variant="contained" 
-                    color="success" 
+                  <Button
+                    variant="contained"
+                    sx={{ backgroundColor: "#1b5e20", "&:hover": { backgroundColor: "#145a16" } }}
                     onClick={() => handleOpenDialog(loan)}
                   >
                     Devolver
@@ -139,45 +162,38 @@ const ActiveLoanList = () => {
         </Table>
       </TableContainer>
 
-      {/* Dialog para indicar daño */}
+      {/* Dialog de devolución */}
       <Dialog open={openDialog} onClose={handleCloseDialog}>
         <DialogTitle>Devolver Herramienta</DialogTitle>
         <DialogContent>
           <FormControlLabel
-            control={
-              <Checkbox
-                checked={damaged}
-                onChange={(e) => setDamaged(e.target.checked)}
-              />
-            }
+            control={<Checkbox checked={damaged} onChange={(e) => setDamaged(e.target.checked)} />}
             label="Herramienta dañada"
           />
           <FormControlLabel
-            control={
-              <Checkbox
-                checked={irreparable}
-                onChange={(e) => setIrreparable(e.target.checked)}
-                disabled={!damaged}
-              />
-            }
+            control={<Checkbox checked={irreparable} onChange={(e) => setIrreparable(e.target.checked)} disabled={!damaged} />}
             label="Daño irreparable"
           />
         </DialogContent>
         <DialogActions>
           <Button onClick={handleCloseDialog}>Cancelar</Button>
-          <Button variant="contained" color="success" onClick={handleReturn}>
+          <Button
+            variant="contained"
+            sx={{ backgroundColor: "#1b5e20", "&:hover": { backgroundColor: "#145a16" } }}
+            onClick={handleReturn}
+          >
             Confirmar devolución
           </Button>
         </DialogActions>
       </Dialog>
 
-      {/* Dialog de boleta/resumen con pregunta sobre multa */}
+      {/* Dialog de boleta/multa */}
       <Dialog open={openReceiptDialog} onClose={() => setOpenReceiptDialog(false)}>
         <DialogTitle>Boleta de Devolución</DialogTitle>
         <DialogContent>
           {loanReceipt && (
             <div style={{ minWidth: "300px" }}>
-              <p><strong>Cliente:</strong> {loanReceipt.client?.rut} (ID: {loanReceipt.client?.id})</p>
+              <p><strong>Cliente:</strong> {loanReceipt.client?.id}</p>
               <p><strong>Herramienta:</strong> {loanReceipt.tool?.name}</p>
               <p><strong>Precio préstamo:</strong> ${loanReceipt.loanPrice?.toFixed(2) || '0.00'}</p>
               <p><strong>Multa por atraso:</strong> ${loanReceipt.fine?.toFixed(2) || '0.00'}</p>
@@ -185,45 +201,33 @@ const ActiveLoanList = () => {
               <p><strong>Total multa + daño:</strong> ${loanReceipt.fineTotal?.toFixed(2) || '0.00'}</p>
               <p><strong>Total a pagar:</strong> ${loanReceipt.total?.toFixed(2) || '0.00'}</p>
 
-              {/* Solo mostrar botones si hay multa que pagar */}
-              {loanReceipt.fineTotal > 0 && (
-                <>
-                  <p style={{ fontWeight: "bold", marginTop: "20px", marginBottom: "10px" }}>
-                    ¿El cliente pagó la multa?
-                  </p>
-                  <div style={{ display: "flex", gap: "10px", justifyContent: "center" }}>
-                    <Button 
-                      variant="contained" 
-                      color="success" 
-                      onClick={() => handleFinePaid(true)}
-                    >
-                      Sí, pagó
-                    </Button>
-                    <Button 
-                      variant="contained" 
-                      color="error" 
-                      onClick={() => handleFinePaid(false)}
-                    >
-                      No pagó
-                    </Button>
-                  </div>
-                </>
-              )}
-
-              {/* Si no hay multa, solo mostrar botón cerrar */}
-              {loanReceipt.fineTotal <= 0 && (
-                <div style={{ display: "flex", justifyContent: "center", marginTop: "20px" }}>
-                  <Button 
-                    variant="contained" 
+              {loanReceipt.fineTotal > 0 ? (
+                <Box display="flex" gap={2} justifyContent="center" mt={2}>
+                  <Button
+                    sx={{ backgroundColor: "#1b5e20", "&:hover": { backgroundColor: "#145a16" } }}
+                    variant="contained"
+                    onClick={() => handleFinePaid(true)}
+                  >
+                    Sí, pagó
+                  </Button>
+                  <Button variant="contained" color="error" onClick={() => handleFinePaid(false)}>
+                    No pagó
+                  </Button>
+                </Box>
+              ) : (
+                <Box display="flex" justifyContent="center" mt={2}>
+                  <Button
+                    variant="contained"
+                    sx={{ backgroundColor: "#1b5e20", "&:hover": { backgroundColor: "#145a16" } }}
                     onClick={() => {
                       setOpenReceiptDialog(false);
                       setSelectedLoan(null);
-                      fetchLoans();
+                      fetchAllLoans();
                     }}
                   >
                     Cerrar
                   </Button>
-                </div>
+                </Box>
               )}
             </div>
           )}
@@ -234,14 +238,3 @@ const ActiveLoanList = () => {
 };
 
 export default ActiveLoanList;
-
-
-
-
-
-
-
-
-
-
-

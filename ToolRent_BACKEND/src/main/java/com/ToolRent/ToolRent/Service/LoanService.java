@@ -178,7 +178,7 @@ public class LoanService {
 
 
     // Obtener préstamos activos ordenados
-    @Transactional
+
     public List<LoanEntity> getActiveLoans() {
         LocalDate now = LocalDate.now();
 
@@ -187,6 +187,11 @@ public class LoanService {
 
         // Retornar la lista ya actualizada
         return loans;
+    }
+
+    public List<LoanEntity> getActiveLoansByDate(LocalDate startDate, LocalDate endDate) {
+        // Esta función **solo se usa si se pasan fechas válidas**
+        return loanRepository.findActiveLoansByDateRange(startDate, endDate);
     }
 
     @Scheduled(cron = "0 0 0 * * ?") // todos los días a medianoche
@@ -227,6 +232,16 @@ public class LoanService {
         loan.setFinePaid(finePaid);
         userService.updateUserStatus(loan.getClient().getId(), finePaid);
         return loanRepository.save(loan);
+    }
+
+    // Clientes con préstamos atrasados - todos
+    public List<UserEntity> getClientsWithOverdueLoans(LocalDate today) {
+        return loanRepository.findClientsWithOverdueLoansAll(today);
+    }
+
+    // Clientes con préstamos atrasados - filtrados por rango de fechas
+    public List<UserEntity> getClientsWithOverdueLoans(LocalDate today, LocalDate startDate, LocalDate endDate) {
+        return loanRepository.findClientsWithOverdueLoans(today, startDate, endDate);
     }
 
 }

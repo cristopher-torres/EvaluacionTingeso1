@@ -38,23 +38,28 @@ const KardexList = () => {
     };
 
     const fetchMovementsByDateRange = () => {
-    if (!startDate || !endDate) {
-        setError("Por favor ingresa ambas fechas");
-        return;
-    }
+        if (!startDate || !endDate) {
+            setError("Por favor ingresa ambas fechas");
+            return;
+        }
 
-    const startIso = `${startDate}T00:00:00`;
-    const endIso = `${endDate}T23:59:59`;
+        const startIso = `${startDate}T00:00:00`;
+        const endIso = `${endDate}T23:59:59`;
 
-    getMovementsByDateRange(startIso, endIso)
-        .then(res => {
-            setMovements(res.data);
-            setError("");
-        })
-        .catch(err => {
-            setError("Error al obtener movimientos en el rango de fechas");
-        });
-    }
+        getMovementsByDateRange(startIso, endIso)
+            .then(res => {
+                setMovements(res.data);
+                setError("");
+            })
+            .catch(err => {
+                setError("Error al obtener movimientos en el rango de fechas");
+            });
+    };
+
+    const buttonStyle = {
+        backgroundColor: "#1b5e20",
+        "&:hover": { backgroundColor: "#145a16" }
+    };
 
     return (
         <Box sx={{ p: 3 }}>
@@ -71,13 +76,29 @@ const KardexList = () => {
                     isOptionEqualToValue={(option, value) => option.id === value.id}
                     freeSolo
                 />
-                <Button variant="contained" onClick={fetchMovementsByTool}>Buscar por Herramienta</Button>
+                <Button variant="contained" onClick={fetchMovementsByTool} sx={buttonStyle}>
+                    Buscar por Herramienta
+                </Button>
             </Box>
 
             <Box sx={{ display: 'flex', gap: 2, mb: 3 }}>
-                <TextField label="Fecha Inicio" type="date" value={startDate} onChange={(e) => setStartDate(e.target.value)} InputLabelProps={{ shrink: true }} />
-                <TextField label="Fecha Fin" type="date" value={endDate} onChange={(e) => setEndDate(e.target.value)} InputLabelProps={{ shrink: true }} />
-                <Button variant="contained" onClick={fetchMovementsByDateRange}>Buscar por Rango de Fechas</Button>
+                <TextField
+                    label="Fecha Inicio"
+                    type="date"
+                    value={startDate}
+                    onChange={(e) => setStartDate(e.target.value)}
+                    InputLabelProps={{ shrink: true }}
+                />
+                <TextField
+                    label="Fecha Fin"
+                    type="date"
+                    value={endDate}
+                    onChange={(e) => setEndDate(e.target.value)}
+                    InputLabelProps={{ shrink: true }}
+                />
+                <Button variant="contained" onClick={fetchMovementsByDateRange} sx={buttonStyle}>
+                    Buscar por Rango de Fechas
+                </Button>
             </Box>
 
             {error && <Typography color="error" gutterBottom>{error}</Typography>}
@@ -111,4 +132,5 @@ const KardexList = () => {
 };
 
 export default KardexList;
+
 
