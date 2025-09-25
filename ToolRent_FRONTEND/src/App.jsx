@@ -13,6 +13,9 @@ import AddUser from './components/AddUser';
 import ToolDecommission from './components/ToolDecommission';
 import KardexList from './components/KardexList';
 import ReportLateClient from './components/ReportLateClient';
+import ToolListRanking from './components/ToolListRanking';
+import UserList from './components/UserList';
+import UnpaidLoansPage from './components/UnpaidLoanList';
 
 
 
@@ -51,6 +54,9 @@ function App() {
               <Route path="/tools/decommission" element={<PrivateRoute element={<ToolDecommission />} rolesAllowed={['ADMIN']} />} />
               <Route path="tool/movementHistory" element={<PrivateRoute element={<KardexList />} rolesAllowed={['EMPLOYEE', 'ADMIN']} />} />
               <Route path="/reports/lateClients" element={<PrivateRoute element={<ReportLateClient />} rolesAllowed={['EMPLOYEE', 'ADMIN']} />} />
+              <Route path="/loans/TopTools" element={<PrivateRoute element={<ToolListRanking />} rolesAllowed={['EMPLOYEE', 'ADMIN']} />} />
+              <Route path="/users/list" element={<PrivateRoute element={<UserList />} rolesAllowed={['ADMIN']} />} />
+              <Route path="/loans/unpaidLoans" element={<PrivateRoute element={<UnpaidLoansPage />} rolesAllowed={['EMPLOYEE', 'ADMIN']} />} />
               <Route path="*" element={<NotFound/>} />
             </Routes>
           </div>

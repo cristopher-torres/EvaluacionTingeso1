@@ -23,6 +23,7 @@ public class UserEntity {
     private String rut;
 
     private String name;
+    private String lastName;
     private String email;
     private String phoneNumber;
     private String status;

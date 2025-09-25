@@ -1,18 +1,18 @@
 import httpClient from "../http-common";
 
-const getAllClients = () => {
+export const getAllClients = () => {
     return httpClient.get('/api/users/getUsers');
 }
 
-const createUser = (data) => {
+export const createUser = (data) => {
   return httpClient.post(`/api/users/createUser`, data);
 };
 
-const get = (id) => {
+export const get = (id) => {
   return httpClient.get(`api/users/${id}`);
 }
 
-const updateUserStatus = (userId, finePaid) => {
+export const updateUserStatus = (userId, finePaid) => {
     return httpClient.put(`/api/users/${userId}/status?finePaid=${finePaid}`);
 }
 

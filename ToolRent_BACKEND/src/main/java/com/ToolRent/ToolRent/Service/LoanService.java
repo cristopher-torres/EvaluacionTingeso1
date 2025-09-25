@@ -2,6 +2,7 @@ package com.ToolRent.ToolRent.Service;
 
 import com.ToolRent.ToolRent.Entity.*;
 import com.ToolRent.ToolRent.Repository.LoanRepository;
+import jakarta.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
@@ -235,13 +236,31 @@ public class LoanService {
     }
 
     // Clientes con préstamos atrasados - todos
-    public List<UserEntity> getClientsWithOverdueLoans(LocalDate today) {
-        return loanRepository.findClientsWithOverdueLoansAll(today);
+    public List<LoanEntity>  getOverdueLoans(LocalDate today) {
+        return loanRepository.findOverdueLoans(today);
     }
 
     // Clientes con préstamos atrasados - filtrados por rango de fechas
-    public List<UserEntity> getClientsWithOverdueLoans(LocalDate today, LocalDate startDate, LocalDate endDate) {
-        return loanRepository.findClientsWithOverdueLoans(today, startDate, endDate);
+    public List<LoanEntity> getOverdueLoansByDate(LocalDate today, LocalDate startDate, LocalDate endDate) {
+        return loanRepository.findOverdueLoansByDate(today, startDate, endDate);
+    }
+
+
+    @PostConstruct
+    public void checkOverdueLoansOnStartup() {
+        updateOverdueLoans();
+    }
+
+    public List<Object[]> getTopLentToolsAllTime() {
+        return loanRepository.findTopLentToolsAllTime();
+    }
+
+    public List<Object[]> getTopLentTools(LocalDate startDate, LocalDate endDate) {
+        return loanRepository.findTopLentToolsByName(startDate, endDate);
+    }
+
+    public List<LoanEntity> getUnpaidLoans() {
+        return loanRepository.findByFinePaidFalse();
     }
 
 }

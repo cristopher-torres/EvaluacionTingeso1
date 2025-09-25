@@ -69,21 +69,43 @@ public class LoanController {
     }
 
     // Obtener todos los clientes con préstamos atrasados
+    @PreAuthorize("hasAnyRole('EMPLOYEE','ADMIN')")
     @GetMapping("/overdueClients")
-    @PreAuthorize("hasAnyRole('ADMIN','MANAGER')")
-    public List<UserEntity> getOverdueClients() {
+    public List<LoanEntity> getOverdueClients() {
         LocalDate today = LocalDate.now();
-        return loanService.getClientsWithOverdueLoans(today);
+        return loanService.getOverdueLoans(today);
     }
 
     // Obtener clientes con préstamos atrasados filtrados por rango de fechas
+    @PreAuthorize("hasAnyRole('EMPLOYEE','ADMIN')")
     @GetMapping("/overdueClients/dateRange")
-    @PreAuthorize("hasAnyRole('ADMIN','MANAGER')")
-    public List<UserEntity> getOverdueClientsByDate(
+    public List<LoanEntity> getOverdueClientsByDate(
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate
     ) {
         LocalDate today = LocalDate.now();
-        return loanService.getClientsWithOverdueLoans(today, startDate, endDate);
+        return loanService.getOverdueLoansByDate(today, startDate, endDate);
     }
+
+    @PreAuthorize("hasAnyRole('EMPLOYEE','ADMIN')")
+    @GetMapping("/topToolsByDate")
+    public List<Object[]> getTopToolsByDate(
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate
+    ) {
+        return loanService.getTopLentTools(startDate, endDate);
+    }
+
+    @PreAuthorize("hasAnyRole('EMPLOYEE','ADMIN')")
+    @GetMapping("/topTools")
+    public List<Object[]> getTopTools() {
+        return loanService.getTopLentToolsAllTime();
+    }
+
+    @GetMapping("/unpaid")
+    public ResponseEntity<List<LoanEntity>> getUnpaidLoans() {
+        List<LoanEntity> unpaidLoans = loanService.getUnpaidLoans();
+        return ResponseEntity.ok(unpaidLoans);
+    }
+
 }

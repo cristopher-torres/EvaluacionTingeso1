@@ -26,13 +26,26 @@ export const getActiveLoansByDate = (startDate, endDate) => {
   return httpClient.get(`/api/loans/loansActiveByDate?startDate=${startDate}&endDate=${endDate}`);
 };
 
-export const getOverdueClients = () => {
+export const getOverdueLoans = () => {
   return httpClient.get("/api/loans/overdueClients");
 };
 
-
-export const getOverdueClientsByDate = (startDate, endDate) => {
+export const getOverdueLoansByDate = (startDate, endDate) => {
   return httpClient.get(`/api/loans/overdueClients/dateRange?startDate=${startDate}&endDate=${endDate}`);
 };
 
-export default { returnLoan , createLoan, getActiveLoans, getLoans, updateFinePaid, getActiveLoansByDate, getOverdueClients, getOverdueClientsByDate };
+export const getTopToolsByDate = (startDate, endDate) => {
+  return httpClient.get(`/api/loans/topToolsByDate?startDate=${startDate}&endDate=${endDate}`);
+};
+
+export const getTopToolsAllTime = () => {
+  return httpClient.get(`/api/loans/topTools`);
+};
+
+export const getUnpaidLoans = () => {
+  return httpClient.get("/api/loans/unpaid");
+}
+
+
+export default { returnLoan , createLoan, getActiveLoans, getLoans, updateFinePaid, getActiveLoansByDate, getOverdueLoans, 
+  getOverdueLoansByDate, getTopToolsByDate, getTopToolsAllTime, getUnpaidLoans };

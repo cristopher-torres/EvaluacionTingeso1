@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { getOverdueLoans, getOverdueLoansByDate } from "../services/loan.service";
+import { getTopToolsByDate, getTopToolsAllTime } from "../services/loan.service";
 import Table from "@mui/material/Table";
 import TableBody from "@mui/material/TableBody";
 import TableCell from "@mui/material/TableCell";
@@ -11,27 +11,29 @@ import Button from "@mui/material/Button";
 import TextField from "@mui/material/TextField";
 import Box from "@mui/material/Box";
 
-const ReportLateClient = () => {
-  const [loans, setLoans] = useState([]);
+const ToolListRanking = () => {
+  const [tools, setTools] = useState([]);
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
 
-  const fetchAllLateLoans = () => {
-    getOverdueLoans().then(res => setLoans(res.data));
+  const fetchAllTools = () => {
+    getTopToolsAllTime().then(res => setTools(res.data));
   };
 
-  const fetchLateLoansByDate = () => {
+  const fetchToolsByDate = () => {
     if (!startDate || !endDate) return;
-    getOverdueLoansByDate(startDate, endDate).then(res => setLoans(res.data));
+    getTopToolsByDate(startDate, endDate).then(res => setTools(res.data));
   };
 
   useEffect(() => {
-    fetchAllLateLoans();
+    fetchAllTools();
   }, []);
 
   return (
     <div>
-      <h2>Préstamos Atrasados</h2>
+      <h2 style={{ color: "#1b5e20", fontSize: 30, marginBottom: 24 }}>
+            Ranking de Herramientas Más Prestadas
+      </h2>
 
       <Box display="flex" gap={2} mb={2}>
         <TextField
@@ -51,14 +53,14 @@ const ReportLateClient = () => {
         <Button
           variant="contained"
           sx={{ backgroundColor: "#1b5e20", "&:hover": { backgroundColor: "#145a16" } }}
-          onClick={fetchLateLoansByDate}
+          onClick={fetchToolsByDate}
         >
           Filtrar por fechas
         </Button>
         <Button
           variant="contained"
           sx={{ backgroundColor: "#1b5e20", "&:hover": { backgroundColor: "#145a16" } }}
-          onClick={fetchAllLateLoans}
+          onClick={fetchAllTools}
         >
           Ver todos
         </Button>
@@ -68,30 +70,17 @@ const ReportLateClient = () => {
         <Table>
           <TableHead>
             <TableRow>
-              <TableCell>ID Cliente</TableCell>
-              <TableCell>Nombre</TableCell>
-              <TableCell>Correo</TableCell>
-              <TableCell>Teléfono</TableCell>
-              <TableCell>ID Préstamo</TableCell>
+              <TableCell>Nombre Herramienta</TableCell>
+              <TableCell>Veces Prestada</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
-            {loans.map(loan => (
-              <TableRow key={loan.id}>
-                <TableCell>{loan.client.id}</TableCell>
-                <TableCell>{loan.client.name}</TableCell>
-                <TableCell>{loan.client.email}</TableCell>
-                <TableCell>{loan.client.phoneNumber}</TableCell>
-                <TableCell>{loan.id}</TableCell>
+            {tools.map((tool, index) => (
+              <TableRow key={index}>
+                <TableCell>{tool[0]}</TableCell> 
+                <TableCell>{tool[1]}</TableCell> 
               </TableRow>
             ))}
-            {loans.length === 0 && (
-              <TableRow>
-                <TableCell colSpan={6} align="center">
-                  No hay clientes con atrasos en devolucion de prestamos.
-                </TableCell>
-              </TableRow>
-            )}
           </TableBody>
         </Table>
       </TableContainer>
@@ -99,4 +88,4 @@ const ReportLateClient = () => {
   );
 };
 
-export default ReportLateClient;
+export default ToolListRanking;

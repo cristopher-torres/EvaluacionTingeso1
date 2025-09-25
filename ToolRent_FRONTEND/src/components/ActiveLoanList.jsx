@@ -202,17 +202,20 @@ const ActiveLoanList = () => {
               <p><strong>Total a pagar:</strong> ${loanReceipt.total?.toFixed(2) || '0.00'}</p>
 
               {loanReceipt.fineTotal > 0 ? (
-                <Box display="flex" gap={2} justifyContent="center" mt={2}>
-                  <Button
-                    sx={{ backgroundColor: "#1b5e20", "&:hover": { backgroundColor: "#145a16" } }}
-                    variant="contained"
-                    onClick={() => handleFinePaid(true)}
-                  >
-                    Sí, pagó
-                  </Button>
-                  <Button variant="contained" color="error" onClick={() => handleFinePaid(false)}>
-                    No pagó
-                  </Button>
+                <Box display="flex" flexDirection="column" alignItems="center" mt={2}>
+                  <p>¿Pagó la multa?</p>
+                  <Box display="flex" gap={2} justifyContent="center" mt={2}>
+                    <Button
+                      sx={{ backgroundColor: "#1b5e20", "&:hover": { backgroundColor: "#145a16" } }}
+                      variant="contained"
+                      onClick={() => handleFinePaid(true)}
+                    >
+                      Sí, pagó
+                    </Button>
+                    <Button variant="contained" color="error" onClick={() => handleFinePaid(false)}>
+                      No pagó
+                    </Button>
+                  </Box>
                 </Box>
               ) : (
                 <Box display="flex" justifyContent="center" mt={2}>

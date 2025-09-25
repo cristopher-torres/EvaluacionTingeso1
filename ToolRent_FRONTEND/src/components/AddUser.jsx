@@ -14,6 +14,7 @@ import Alert from "@mui/material/Alert";
 const AddUser = () => {
   const [rut, setRut] = useState("");
   const [name, setName] = useState("");
+  const [lastName, setLastName] = useState("");
   const [email, setEmail] = useState("");
   const [phoneNumber, setPhoneNumber] = useState("");
   const [username, setUsername] = useState("");
@@ -29,11 +30,12 @@ const AddUser = () => {
     const userData = {
       rut,
       name,
+      lastName,
       email,
       phoneNumber,
       username,
       role: "CLIENT", 
-      status: "Activo"
+      status: "ACTIVO"
     };
 
     userService.createUser(userData)
@@ -85,6 +87,15 @@ const AddUser = () => {
             label="Nombre"
             value={name}
             onChange={(e) => setName(e.target.value)}
+            required
+          />
+        </FormControl>
+
+        <FormControl fullWidth>
+          <TextField
+            label="Apellido"
+            value={lastName}
+            onChange={(e) => setLastName(e.target.value)}
             required
           />
         </FormControl>
