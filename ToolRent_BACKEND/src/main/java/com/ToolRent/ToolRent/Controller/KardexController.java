@@ -1,15 +1,11 @@
 package com.ToolRent.ToolRent.Controller;
 
 import com.ToolRent.ToolRent.Entity.KardexEntity;
-import com.ToolRent.ToolRent.Entity.LoanEntity;
 import com.ToolRent.ToolRent.Entity.ToolsEntity;
 import com.ToolRent.ToolRent.Service.KardexService;
-import com.ToolRent.ToolRent.Service.LoanService;
 import com.ToolRent.ToolRent.Service.ToolsService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
-import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;

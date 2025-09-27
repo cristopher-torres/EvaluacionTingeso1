@@ -10,7 +10,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.Date;
 import java.util.List;
 
 @Service
@@ -115,14 +114,6 @@ public class LoanService {
         loan.setReturnDate(today);
         loan.setDelivered(true);
 
-        // Calcular precio real del préstamo
-        long daysUsed = java.time.temporal.ChronoUnit.DAYS.between(
-                loan.getStartDate(),
-                today
-        );
-        if (daysUsed <= 0) daysUsed = 1; // mínimo 1 día
-        double realPrice = daysUsed * loan.getTool().getDailyRate();
-        loan.setLoanPrice(realPrice);
 
         // Manejar daños
         double damagePrice = 0.0;

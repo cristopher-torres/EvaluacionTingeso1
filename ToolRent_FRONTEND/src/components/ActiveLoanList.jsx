@@ -193,7 +193,7 @@ const ActiveLoanList = () => {
         <DialogContent>
           {loanReceipt && (
             <div style={{ minWidth: "300px" }}>
-              <p><strong>Cliente:</strong> {loanReceipt.client?.id}</p>
+              <p><strong>Cliente:</strong> {loanReceipt.client?.rut}</p>
               <p><strong>Herramienta:</strong> {loanReceipt.tool?.name}</p>
               <p><strong>Precio préstamo:</strong> ${loanReceipt.loanPrice?.toFixed(2) || '0.00'}</p>
               <p><strong>Multa por atraso:</strong> ${loanReceipt.fine?.toFixed(2) || '0.00'}</p>

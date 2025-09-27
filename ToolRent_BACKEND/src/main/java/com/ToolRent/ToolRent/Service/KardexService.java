@@ -1,7 +1,6 @@
 package com.ToolRent.ToolRent.Service;
 import com.ToolRent.ToolRent.Entity.KardexEntity;
 import com.ToolRent.ToolRent.Entity.ToolsEntity;
-import com.ToolRent.ToolRent.Entity.UserEntity;
 import com.ToolRent.ToolRent.Repository.KardexRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;

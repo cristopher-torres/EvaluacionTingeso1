@@ -4,10 +4,8 @@ import com.ToolRent.ToolRent.DTO.ToolStockDTO;
 import com.ToolRent.ToolRent.Entity.KardexEntity;
 import com.ToolRent.ToolRent.Entity.ToolStatus;
 import com.ToolRent.ToolRent.Entity.ToolsEntity;
-import com.ToolRent.ToolRent.Entity.UserEntity;
 import com.ToolRent.ToolRent.Repository.ToolsRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 

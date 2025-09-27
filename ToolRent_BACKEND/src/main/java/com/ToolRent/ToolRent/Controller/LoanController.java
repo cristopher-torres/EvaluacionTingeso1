@@ -1,11 +1,9 @@
 package com.ToolRent.ToolRent.Controller;
 
 import com.ToolRent.ToolRent.Entity.LoanEntity;
-import com.ToolRent.ToolRent.Entity.UserEntity;
 import com.ToolRent.ToolRent.Service.LoanService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
