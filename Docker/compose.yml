@@ -1,0 +1,132 @@
+version: "3.8"
+
+services:
+  # Nginx for frontend load balancing
+  nginx-frontend:
+    image: nginx
+    container_name: nginx-frontend
+    restart: always
+    ports:
+      - "8070:80"
+    volumes:
+      - ./nginx-frontend.conf:/etc/nginx/nginx.conf
+    networks:
+      - frontend-network
+    depends_on:
+      - frontend1
+      - frontend2
+      - frontend3
+
+  # Frontend services
+  frontend1:
+    image: crisdocker10/toolrent-frontend:latest
+    container_name: frontend1
+    networks:
+      - frontend-network
+
+  frontend2:
+    image: crisdocker10/toolrent-frontend:latest
+    container_name: frontend2
+    networks:
+      - frontend-network
+
+  frontend3:
+    image: crisdocker10/toolrent-frontend:latest
+    container_name: frontend3
+    networks:
+      - frontend-network
+
+  # Nginx for backend load balancing
+  nginx-backend:
+    image: nginx
+    container_name: nginx-backend
+    restart: always
+    ports:
+      - "8090:8090"
+    volumes:
+      - ./nginx-backend.conf:/etc/nginx/nginx.conf
+    networks:
+      - backend-network
+    depends_on:
+      - backend1
+      - backend2
+      - backend3
+
+  # MySQL Database
+  mysql:
+    image: mysql:8.1
+    container_name: toolrent-mysql-container
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: cris123
+      MYSQL_DATABASE: dbtoolrent
+      MYSQL_USER: ADMIN
+      MYSQL_PASSWORD: cris123
+    ports:
+      - "3307:3306"
+    volumes:
+      - toolrent-mysql-volume:/var/lib/mysql
+    networks:
+      - backend-network
+    deploy:
+      restart_policy:
+        condition: on-failure
+
+  # Backend services
+  backend1:
+    image: crisdocker10/toolrent-backend:latest
+    container_name: backend1
+    environment:
+      DB_HOST: toolrent-mysql-container
+      DB_PORT: 3306
+      DB_NAME: dbtoolrent
+      DB_USER: ADMIN
+      DB_PASSWORD: cris123
+    networks:
+      - backend-network
+    depends_on:
+      - mysql
+    deploy:
+      restart_policy:
+        condition: on-failure
+
+  backend2:
+    image: crisdocker10/toolrent-backend:latest
+    container_name: backend2
+    environment:
+      DB_HOST: toolrent-mysql-container
+      DB_PORT: 3306
+      DB_NAME: dbtoolrent
+      DB_USER: ADMIN
+      DB_PASSWORD: cris123
+    networks:
+      - backend-network
+    depends_on:
+      - mysql
+    deploy:
+      restart_policy:
+        condition: on-failure
+
+  backend3:
+    image: crisdocker10/toolrent-backend:latest
+    container_name: backend3
+    environment:
+      DB_HOST: toolrent-mysql-container
+      DB_PORT: 3306
+      DB_NAME: dbtoolrent
+      DB_USER: ADMIN
+      DB_PASSWORD: cris123
+    networks:
+      - backend-network
+    depends_on:
+      - mysql
+    deploy:
+      restart_policy:
+        condition: on-failure
+
+networks:
+  frontend-network:
+  backend-network:
+
+volumes:
+  toolrent-mysql-volume:
