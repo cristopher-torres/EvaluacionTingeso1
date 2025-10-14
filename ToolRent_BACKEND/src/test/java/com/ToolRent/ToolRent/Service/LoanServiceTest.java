@@ -55,7 +55,6 @@ class LoanServiceTest {
         when(userService.findById(1L)).thenReturn(user);
         when(toolsService.getAvailableTool(1L)).thenReturn(tool);
         doNothing().when(toolsService).loanTool(1L);
-        when(userService.getEmailFromToken()).thenReturn("test@email.com");
         when(loanRepository.save(any())).thenAnswer(i -> i.getArgument(0));
 
         LoanEntity savedLoan = loanService.createLoan(loan);
@@ -102,7 +101,6 @@ class LoanServiceTest {
         // Mock para UserService.findById (importante para validateClient)
         when(userService.findById(1L)).thenReturn(user);
 
-        when(userService.getEmailFromToken()).thenReturn("test@email.com");
 
         // Ahora sí se lanza IllegalArgumentException por fecha inválida
         IllegalArgumentException ex = assertThrows(IllegalArgumentException.class,
@@ -131,7 +129,6 @@ class LoanServiceTest {
 
         when(loanRepository.findById(1L)).thenReturn(Optional.of(loan));
         doNothing().when(toolsService).returnTool(tool.getId());
-        when(userService.getEmailFromToken()).thenReturn("test@email.com");
         when(loanRepository.save(any())).thenAnswer(i -> i.getArgument(0));
 
         LoanEntity returned = loanService.returnLoan(1L, false, false);
@@ -163,7 +160,6 @@ class LoanServiceTest {
 
         when(loanRepository.findById(1L)).thenReturn(Optional.of(loan));
         when(toolsService.decommissionTool(tool.getId())).thenReturn(tool);
-        when(userService.getEmailFromToken()).thenReturn("test@email.com");
         when(loanRepository.save(any())).thenAnswer(i -> i.getArgument(0));
 
         LoanEntity returned = loanService.returnLoan(1L, true, true);
@@ -197,7 +193,6 @@ class LoanServiceTest {
         loan.setFine(0);
 
         when(loanRepository.findById(1L)).thenReturn(Optional.of(loan));
-        when(userService.getEmailFromToken()).thenReturn("user@example.com");
         when(loanRepository.save(any(LoanEntity.class))).thenAnswer(i -> i.getArgument(0));
 
         LoanEntity returnedLoan = loanService.returnLoan(1L, true, false);

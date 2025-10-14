@@ -43,7 +43,6 @@ class ToolsServiceTest {
         tool.setCategory("Electricas");
         tool.setReplacementValue(100);
 
-        when(userService.getEmailFromToken()).thenReturn("user@test.com");
         when(toolsRepository.save(any(ToolsEntity.class))).thenAnswer(i -> i.getArguments()[0]);
 
         ToolsEntity result = toolsService.registerTool(tool, 2);
@@ -101,7 +100,6 @@ class ToolsServiceTest {
         tool.setStatus(ToolStatus.DISPONIBLE);
 
         when(toolsRepository.findById(1L)).thenReturn(Optional.of(tool));
-        when(userService.getEmailFromToken()).thenReturn("user@test.com");
         when(toolsRepository.save(tool)).thenReturn(tool);
 
         ToolsEntity result = toolsService.decommissionTool(1L);

@@ -49,13 +49,10 @@ public class ToolsService {
 
             ToolsEntity savedTool = toolsRepository.save(unit);
 
-            String emailUsuario = userService.getEmailFromToken();
-
             KardexEntity movement = new KardexEntity();
             movement.setType("INGRESO");
             movement.setQuantity(1);
             movement.setTool(savedTool);
-            movement.setUserEmail(emailUsuario);
             movement.setDateTime(LocalDateTime.now());
             kardexService.save(movement);
         }
@@ -71,13 +68,11 @@ public class ToolsService {
                 .orElseThrow(() -> new RuntimeException("Herramienta no encontrada"));
 
         tool.setStatus(ToolStatus.DADA_DE_BAJA);
-        String emailUsuario = userService.getEmailFromToken();
 
         KardexEntity movement = new KardexEntity();
         movement.setType("BAJA");
         movement.setQuantity(1);
         movement.setTool(tool);
-        movement.setUserEmail(emailUsuario);
         movement.setDateTime(LocalDateTime.now());
         kardexService.save(movement);
 

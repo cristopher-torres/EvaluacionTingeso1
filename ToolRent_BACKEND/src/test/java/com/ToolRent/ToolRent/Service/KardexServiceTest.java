@@ -226,4 +226,3 @@ public class KardexServiceTest {
         verify(kardexRepository, times(1)).findByDateTimeBetween(start, end);
     }
 }
-

@@ -197,33 +197,4 @@ class UserServiceTest {
         verify(userRepository, times(1)).save(user);
     }
 
-    // --- getEmailFromToken() ---
-    @Test
-    void testGetEmailFromTokenWithJwt() {
-        Jwt jwt = mock(Jwt.class);
-        when(jwt.getClaim("email")).thenReturn("user@test.com");
-
-        var auth = mock(org.springframework.security.core.Authentication.class);
-        when(auth.getPrincipal()).thenReturn(jwt);
-
-        SecurityContext ctx = mock(SecurityContext.class);
-        when(ctx.getAuthentication()).thenReturn(auth);
-        SecurityContextHolder.setContext(ctx);
-
-        String email = userService.getEmailFromToken();
-        assertEquals("user@test.com", email);
-    }
-
-    @Test
-    void testGetEmailFromTokenUnknown() {
-        var auth = mock(org.springframework.security.core.Authentication.class);
-        when(auth.getPrincipal()).thenReturn("principal_no_jwt");
-
-        SecurityContext ctx = mock(SecurityContext.class);
-        when(ctx.getAuthentication()).thenReturn(auth);
-        SecurityContextHolder.setContext(ctx);
-
-        String email = userService.getEmailFromToken();
-        assertEquals("unknown", email);
-    }
 }
