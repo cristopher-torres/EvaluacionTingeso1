@@ -1,4 +1,4 @@
-FROM openjdk:17
+FROM eclipse-temurin:17-jdk
 ARG JAR_FILE=target/toolrent-backend.jar
 COPY ${JAR_FILE} toolrent-backend.jar
 EXPOSE 8090
