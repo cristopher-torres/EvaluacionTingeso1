@@ -1,7 +1,9 @@
 version: "3.8"
 
 services:
-  # Nginx for frontend load balancing
+  # ---------------------------
+  # NGINX para el frontend
+  # ---------------------------
   nginx-frontend:
     image: nginx
     container_name: nginx-frontend
@@ -17,26 +19,33 @@ services:
       - frontend2
       - frontend3
 
-  # Frontend services
+  # ---------------------------
+  # Frontends
+  # ---------------------------
   frontend1:
     image: crisdocker10/toolrent-frontend:latest
     container_name: frontend1
     networks:
       - frontend-network
+      - backend-network
 
   frontend2:
     image: crisdocker10/toolrent-frontend:latest
     container_name: frontend2
     networks:
       - frontend-network
+      - backend-network
 
   frontend3:
     image: crisdocker10/toolrent-frontend:latest
     container_name: frontend3
     networks:
       - frontend-network
+      - backend-network
 
-  # Nginx for backend load balancing
+  # ---------------------------
+  # NGINX para el backend
+  # ---------------------------
   nginx-backend:
     image: nginx
     container_name: nginx-backend
@@ -52,7 +61,9 @@ services:
       - backend2
       - backend3
 
-  # MySQL Database
+  # ---------------------------
+  # BASE DE DATOS DEL BACKEND
+  # ---------------------------
   mysql:
     image: mysql:8.1
     container_name: toolrent-mysql-container
@@ -72,7 +83,9 @@ services:
       restart_policy:
         condition: on-failure
 
-  # Backend services
+  # ---------------------------
+  # BACKENDS
+  # ---------------------------
   backend1:
     image: crisdocker10/toolrent-backend:latest
     container_name: backend1
@@ -82,6 +95,7 @@ services:
       DB_NAME: dbtoolrent
       DB_USER: ADMIN
       DB_PASSWORD: cris123
+
     networks:
       - backend-network
     depends_on:
@@ -99,6 +113,7 @@ services:
       DB_NAME: dbtoolrent
       DB_USER: ADMIN
       DB_PASSWORD: cris123
+
     networks:
       - backend-network
     depends_on:
@@ -116,6 +131,7 @@ services:
       DB_NAME: dbtoolrent
       DB_USER: ADMIN
       DB_PASSWORD: cris123
+
     networks:
       - backend-network
     depends_on:
@@ -124,9 +140,54 @@ services:
       restart_policy:
         condition: on-failure
 
+  # ---------------------------
+  # KEYCLOAK DATABASE
+  # ---------------------------
+  keycloak-db:
+    image: postgres:16
+    container_name: keycloak-db
+    restart: always
+    environment:
+      POSTGRES_DB: keycloak
+      POSTGRES_USER: keycloak
+      POSTGRES_PASSWORD: keypass
+    volumes:
+      - keycloak-db-volume:/var/lib/postgresql/data
+    networks:
+      - backend-network
+
+  # ---------------------------
+  # KEYCLOAK SERVER
+  # ---------------------------
+  keycloak:
+    image: quay.io/keycloak/keycloak:25.0
+    container_name: keycloak
+    command: ["start-dev"]
+    environment:
+      KEYCLOAK_ADMIN: cristingeso
+      KEYCLOAK_ADMIN_PASSWORD: rodrigo12
+
+      KC_DB: postgres
+      KC_DB_URL: jdbc:postgresql://keycloak-db:5432/keycloak
+      KC_DB_USERNAME: keycloak
+      KC_DB_PASSWORD: keypass
+
+      KC_HOSTNAME_URL: http://localhost:9090
+      KC_HOSTNAME_ADMIN_URL: http://localhost:9090
+    ports:
+      - "9090:8080"
+    depends_on:
+      - keycloak-db
+    networks:
+      - backend-network
+
+# ---------------------------
+# NETWORKS Y VOLUMENES
+# ---------------------------
 networks:
   frontend-network:
   backend-network:
 
 volumes:
   toolrent-mysql-volume:
+  keycloak-db-volume:
