@@ -34,7 +34,7 @@ public class KardexEntity {
     @JsonBackReference(value = "tool-kardex")
     private ToolsEntity tool;
 
-    private String userEmail;
+    private String userRut;
 
 
     @ManyToOne

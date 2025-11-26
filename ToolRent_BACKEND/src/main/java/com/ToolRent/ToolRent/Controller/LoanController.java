@@ -18,19 +18,26 @@ public class LoanController {
     @Autowired
     private LoanService loanService;
 
-    @PostMapping("/createLoan")
-    public ResponseEntity<LoanEntity> createLoan(@RequestBody LoanEntity loan) {
-        LoanEntity createdLoan = loanService.createLoan(loan);
+    @PostMapping("/createLoan/{rut}")
+    public ResponseEntity<LoanEntity> createLoan(
+            @PathVariable String rut,
+            @RequestBody LoanEntity loan
+    ) {
+        LoanEntity createdLoan = loanService.createLoan(loan, rut);
         return ResponseEntity.ok(createdLoan);
     }
 
-    @PostMapping("/{loanId}/return")
-    public LoanEntity returnLoan(
+    @PostMapping("/returnLoan/{loanId}/{rut}")
+    public ResponseEntity<LoanEntity> returnLoan(
             @PathVariable Long loanId,
+            @PathVariable String rut,
             @RequestParam(required = false, defaultValue = "false") boolean damaged,
-            @RequestParam(required = false, defaultValue = "false") boolean irreparable) {
-        return loanService.returnLoan(loanId, damaged, irreparable);
+            @RequestParam(required = false, defaultValue = "false") boolean irreparable
+    ) {
+        LoanEntity returnedLoan = loanService.returnLoan(loanId, damaged, irreparable, rut);
+        return ResponseEntity.ok(returnedLoan);
     }
+
 
     @GetMapping("/getLoans")
     public ResponseEntity<List<LoanEntity>> getAllLoans() {

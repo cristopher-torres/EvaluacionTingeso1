@@ -108,7 +108,7 @@ const KardexList = () => {
                     <TableHead>
                         <TableRow>
                             <TableCell>ID</TableCell>
-                            <TableCell>Email Usuario</TableCell>
+                            <TableCell>rut Usuario</TableCell>
                             <TableCell>Cantidad afectada</TableCell>
                             <TableCell>Tipo</TableCell>
                             <TableCell>Fecha</TableCell>
@@ -118,7 +118,7 @@ const KardexList = () => {
                         {movements.map(m => (
                             <TableRow key={m.id}>
                                 <TableCell>{m.id}</TableCell>
-                                <TableCell>{m.userEmail}</TableCell>
+                                <TableCell>{m.userRut}</TableCell>
                                 <TableCell>{m.quantity}</TableCell>
                                 <TableCell>{m.type}</TableCell>
                                 <TableCell>{new Date(m.dateTime).toLocaleString()}</TableCell>

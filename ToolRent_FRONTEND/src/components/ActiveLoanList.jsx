@@ -16,6 +16,7 @@ import DialogTitle from "@mui/material/DialogTitle";
 import FormControlLabel from "@mui/material/FormControlLabel";
 import Checkbox from "@mui/material/Checkbox";
 import Box from "@mui/material/Box";
+import { useKeycloak } from "@react-keycloak/web";
 
 const ActiveLoanList = () => {
   const [loans, setLoans] = useState([]);
@@ -29,6 +30,8 @@ const ActiveLoanList = () => {
 
   const [openReceiptDialog, setOpenReceiptDialog] = useState(false);
   const [loanReceipt, setLoanReceipt] = useState(null);
+  const { keycloak } = useKeycloak();
+  const rut = keycloak?.tokenParsed?.rut;
 
   const fetchAllLoans = () => {
     getActiveLoans().then(res => setLoans(res.data));
@@ -58,7 +61,7 @@ const ActiveLoanList = () => {
   const handleReturn = () => {
     if (!selectedLoan) return;
 
-    returnLoan(selectedLoan.id, damaged, irreparable).then(res => {
+    returnLoan(selectedLoan.id, rut, damaged, irreparable).then(res => {
       setLoanReceipt(res.data);
       setOpenReceiptDialog(true);
       setOpenDialog(false);

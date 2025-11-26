@@ -4,16 +4,16 @@ const getAll = () => {
     return httpClient.get('/api/tools/getTools');
 }
 
-const create = (data, quantity) => {
-  return httpClient.post(`/api/tools/createTool/${quantity}`, data);
+const create = (toolData, quantity, rut) => {
+  return httpClient.post(`/api/tools/createTool/${quantity}/${rut}`, toolData);
 };
 
 const getStock = () => {
     return httpClient.get('/api/tools/stock');
 }
 
-const update = (tool) => {
-  return httpClient.put(`api/tools/updateTool/${tool.id}`, tool);
+const update = (tool, rut) => {
+  return httpClient.put(`api/tools/updateTool/${tool.id}/${rut}`, tool);
 };
 
 const get = (id) => {
@@ -24,8 +24,4 @@ const getAvailable = () => {
   return httpClient.get('/api/tools/available');
 }  
 
-const decommission = (toolId, userId) => {
-  return httpClient.put(`/api/tools/${toolId}/decommission`);
-};
-
-export default { getAll, create, getStock, update, get, getAvailable, decommission };
+export default { getAll, create, getStock, update, get, getAvailable };

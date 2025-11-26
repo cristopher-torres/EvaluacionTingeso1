@@ -10,6 +10,7 @@ import SaveIcon from "@mui/icons-material/Save";
 import Typography from "@mui/material/Typography";
 import Snackbar from "@mui/material/Snackbar";
 import Alert from "@mui/material/Alert";
+import { useKeycloak } from "@react-keycloak/web";
 
 const AddEditTool = () => {
   const [name, setName] = useState("");
@@ -27,9 +28,12 @@ const AddEditTool = () => {
   const navigate = useNavigate();
 
   const [openSnackbar, setOpenSnackbar] = useState(false);
+  const { keycloak } = useKeycloak();
 
   const saveTool = (e) => {
     e.preventDefault();
+
+    const rut = keycloak?.tokenParsed?.rut;
 
     const tool = {
       name,
@@ -44,7 +48,7 @@ const AddEditTool = () => {
 
     if (id) {
       toolService
-        .update(tool)
+        .update(tool, rut)
         .then(() => {
           setSuccessMessage("Herramienta actualizada exitosamente ✅");
           setOpenSnackbar(true);
@@ -53,7 +57,7 @@ const AddEditTool = () => {
         .catch((error) => console.error("Error al actualizar herramienta ❌", error));
     } else {
       toolService
-        .create(tool, Number(quantity))
+        .create(tool, Number(quantity), rut)
         .then(() => {
           setSuccessMessage("Herramienta creada exitosamente ✅");
           setOpenSnackbar(true);

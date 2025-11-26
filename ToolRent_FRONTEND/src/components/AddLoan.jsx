@@ -14,6 +14,7 @@ import Snackbar from "@mui/material/Snackbar";
 import Alert from "@mui/material/Alert";
 import SaveIcon from "@mui/icons-material/Save";
 
+
 const AddLoan = () => {
   const { keycloak } = useKeycloak();
   const navigate = useNavigate();
@@ -54,19 +55,19 @@ const AddLoan = () => {
   const saveLoan = (e) => {
     e.preventDefault();
 
+    const rut = keycloak?.tokenParsed?.rut; 
+
     const loanData = {
       tool: { id: selectedToolId },
       client: { id: selectedClient },
       startDate: startDate,              
       scheduledReturnDate: scheduledReturnDate, 
       createdLoan: new Date().toISOString(), 
-      createdBy: { id: userId },
+      createdBy: { rut: rut },
     };
 
-    console.log("Datos a enviar:", loanData); // Para debug
-
     loanService
-      .createLoan(loanData)
+      .createLoan(loanData, rut)
       .then(() => {
         setSuccessMessage("Préstamo creado exitosamente ✅");
         setOpenSnackbar(true);

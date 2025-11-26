@@ -26,7 +26,8 @@ public class ToolsService {
 
     // Registrar herramienta
     @Transactional
-    public ToolsEntity registerTool(ToolsEntity tool, int quantity) {
+    public ToolsEntity registerTool(ToolsEntity tool, int quantity, String rut) {
+
         if (tool.getName() == null || tool.getName().isBlank()) {
             throw new IllegalArgumentException("Se debe ingresar el nombre");
         }
@@ -37,7 +38,10 @@ public class ToolsService {
             throw new IllegalArgumentException("El valor de reposición debe ser mayor que 0");
         }
 
+        ToolsEntity firstSaved = null;
+
         for (int i = 0; i < quantity; i++) {
+
             ToolsEntity unit = new ToolsEntity();
             unit.setName(tool.getName());
             unit.setCategory(tool.getCategory());
@@ -49,35 +53,44 @@ public class ToolsService {
 
             ToolsEntity savedTool = toolsRepository.save(unit);
 
+            if (i == 0) {
+                firstSaved = savedTool;
+            }
+
+            // Guardar en Kardex
             KardexEntity movement = new KardexEntity();
             movement.setType("INGRESO");
             movement.setQuantity(1);
             movement.setTool(savedTool);
             movement.setDateTime(LocalDateTime.now());
+            movement.setUserRut(rut);
             kardexService.save(movement);
         }
 
-
-        return toolsRepository.save(tool);
+        return firstSaved;  // devolvemos solo una unidad válida
     }
 
+
     @Transactional
-    public ToolsEntity decommissionTool(Long toolId) {
+    public ToolsEntity decommissionTool(Long toolId, String rut) {
 
         ToolsEntity tool = toolsRepository.findById(toolId)
                 .orElseThrow(() -> new RuntimeException("Herramienta no encontrada"));
 
         tool.setStatus(ToolStatus.DADA_DE_BAJA);
 
+        // Registrar movimiento en Kardex
         KardexEntity movement = new KardexEntity();
         movement.setType("BAJA");
         movement.setQuantity(1);
         movement.setTool(tool);
         movement.setDateTime(LocalDateTime.now());
+        movement.setUserRut(rut);
         kardexService.save(movement);
 
         return toolsRepository.save(tool);
     }
+
 
     public List<ToolsEntity> findAll() {
         return toolsRepository.findAll();
@@ -146,11 +159,15 @@ public class ToolsService {
         return stockList;
     }
 
-    public ToolsEntity updateTool(Long toolId, ToolsEntity toolDetails) {
+    public ToolsEntity updateTool(Long toolId, ToolsEntity toolDetails, String rut) {
+        // Obtener la herramienta existente
         ToolsEntity tool = toolsRepository.findById(toolId)
                 .orElseThrow(() -> new RuntimeException("Herramienta no encontrada"));
 
-        // Actualizar los campos editables
+        // Guardar el estado anterior
+        ToolStatus oldStatus = tool.getStatus();
+
+
         tool.setName(toolDetails.getName());
         tool.setCategory(toolDetails.getCategory());
         tool.setReplacementValue(toolDetails.getReplacementValue());
@@ -158,10 +175,37 @@ public class ToolsService {
         tool.setDailyLateRate(toolDetails.getDailyLateRate());
         tool.setRepairValue(toolDetails.getRepairValue());
         tool.setStatus(toolDetails.getStatus());
-        // Ojo: el stock lo puedes decidir si se actualiza aquí o lo dejas fijo
+        // El stock lo dejas como está o actualízalo si corresponde
 
-        return toolsRepository.save(tool);
+        ToolsEntity updatedTool = toolsRepository.save(tool);
+
+        // Crear movimiento en Kardex si el estado cambió a EN_REPARACION
+        if (oldStatus != tool.getStatus() && tool.getStatus() == ToolStatus.EN_REPARACION) {
+            KardexEntity reparacion = new KardexEntity();
+            reparacion.setTool(updatedTool);
+            reparacion.setDateTime(LocalDateTime.now());
+            reparacion.setQuantity(1);
+            reparacion.setLoan(null);
+            reparacion.setUserRut(rut);
+            reparacion.setType("REPARACION");
+            kardexService.save(reparacion);
+        }
+
+        // Crear movimiento en Kardex si el estado cambió a DADA_DE_BAJA
+        if (oldStatus != tool.getStatus() && tool.getStatus() == ToolStatus.DADA_DE_BAJA) {
+            KardexEntity baja = new KardexEntity();
+            baja.setTool(updatedTool);
+            baja.setDateTime(LocalDateTime.now());
+            baja.setQuantity(1);
+            baja.setLoan(null);
+            baja.setUserRut(rut);
+            baja.setType("BAJA");
+            kardexService.save(baja);
+        }
+
+        return updatedTool;
     }
+
 
     public List<ToolsEntity> getAvailableTools() {
         return toolsRepository.findByStatus(ToolStatus.DISPONIBLE);

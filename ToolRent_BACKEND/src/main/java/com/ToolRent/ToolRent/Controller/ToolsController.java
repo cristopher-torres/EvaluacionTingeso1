@@ -18,11 +18,16 @@ public class ToolsController {
     @Autowired
     private ToolsService toolsService;
 
-    @PostMapping("/createTool/{quantity}")
-    public ResponseEntity<ToolsEntity> createTool(@RequestBody ToolsEntity tool, @PathVariable("quantity") int quantity) {
-        ToolsEntity savedTool = toolsService.registerTool(tool, quantity);
+    @PostMapping("/createTool/{quantity}/{rut}")
+    public ResponseEntity<ToolsEntity> createTool(
+            @RequestBody ToolsEntity tool,
+            @PathVariable("quantity") int quantity,
+            @PathVariable("rut") String rut
+    ) {
+        ToolsEntity savedTool = toolsService.registerTool(tool, quantity, rut);
         return ResponseEntity.ok(savedTool);
     }
+
 
 
     @GetMapping("/getTools")
@@ -30,15 +35,6 @@ public class ToolsController {
         return ResponseEntity.ok(toolsService.findAll());
     }
 
-    @PutMapping("/{toolId}/decommission")
-    public ResponseEntity<?> decommissionTool(@PathVariable Long toolId) {
-        try {
-            ToolsEntity updatedTool = toolsService.decommissionTool(toolId);
-            return ResponseEntity.ok(updatedTool);
-        } catch (RuntimeException e) {
-            return ResponseEntity.status(403).body(e.getMessage());
-        }
-    }
 
     @GetMapping("/stock")
     public ResponseEntity<List<ToolStockDTO>> getToolsStock() {
@@ -46,14 +42,16 @@ public class ToolsController {
         return ResponseEntity.ok(stock);
     }
 
-    @PutMapping("/updateTool/{toolId}")
+    @PutMapping("/updateTool/{toolId}/{rut}")
     public ResponseEntity<ToolsEntity> updateTool(
             @PathVariable Long toolId,
+            @PathVariable String rut,
             @RequestBody ToolsEntity toolDetails) {
 
-        ToolsEntity updatedTool = toolsService.updateTool(toolId, toolDetails);
+        ToolsEntity updatedTool = toolsService.updateTool(toolId, toolDetails, rut);
         return ResponseEntity.ok(updatedTool);
     }
+
 
 
     @GetMapping("/getTool/{toolId}")

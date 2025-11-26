@@ -1,11 +1,11 @@
 import httpClient from "../http-common";
 
-const createLoan = (data, quantity) => {
-  return httpClient.post(`/api/loans/createLoan`, data);
+const createLoan = (data, rut) => {
+  return httpClient.post(`/api/loans/createLoan/${rut}`, data);
 };
 
-export const returnLoan = (loanId, damaged = false, irreparable = false) => {
-  return httpClient.post(`/api/loans/${loanId}/return?damaged=${damaged}&irreparable=${irreparable}`);
+export const returnLoan = (loanId, rut, damaged = false, irreparable = false) => {
+  return httpClient.post(`/api/loans/returnLoan/${loanId}/${rut}?damaged=${damaged}&irreparable=${irreparable}`);
 };
 
 

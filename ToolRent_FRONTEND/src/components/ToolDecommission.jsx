@@ -17,7 +17,9 @@ const ToolDecommission = () => {
   const navigate = useNavigate();
   const [tools, setTools] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
+  const rut = keycloak?.tokenParsed?.rut;
 
+  // Cargar todas las herramientas
   const init = () => {
     toolService
       .getAll()
@@ -29,7 +31,7 @@ const ToolDecommission = () => {
     init();
   }, []);
 
-  const handleDecommission = (toolId) => {
+  const handleDecommission = (tool) => {
     if (!keycloak.authenticated) {
       alert("Debes iniciar sesión para dar de baja una herramienta.");
       return;
@@ -41,9 +43,13 @@ const ToolDecommission = () => {
       return;
     }
 
-    const userId = keycloak.tokenParsed?.sub;
+    // Crear objeto tool con status cambiado a DADA_DE_BAJA
+    const toolDetails = {
+      ...tool,       // copiar todos los campos
+      status: "DADA_DE_BAJA"
+    };
 
-    toolService.decommission(toolId, userId)
+    toolService.update(toolDetails, rut)
       .then(() => {
         alert("Herramienta dada de baja ✅");
         init(); // recargar lista
@@ -99,7 +105,7 @@ const ToolDecommission = () => {
                   <Button
                     variant="contained"
                     color="error"
-                    onClick={() => handleDecommission(tool.id)}
+                    onClick={() => handleDecommission(tool)}
                   >
                     Dar de baja
                   </Button>
@@ -114,6 +120,7 @@ const ToolDecommission = () => {
 };
 
 export default ToolDecommission;
+
 
 
 

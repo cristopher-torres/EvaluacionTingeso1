@@ -28,7 +28,7 @@ public class LoanService {
     private KardexService kardexService;
 
     @Transactional
-    public LoanEntity createLoan(LoanEntity loan) {
+    public LoanEntity createLoan(LoanEntity loan, String rut ) {
 
         if (loan.getClient() == null) {
             throw new IllegalArgumentException("Se debe ingresar un cliente");
@@ -84,6 +84,7 @@ public class LoanService {
         movement.setTool(loan.getTool());
         movement.setDateTime(LocalDateTime.now());
         movement.setLoan(loan);
+        movement.setUserRut(rut);
         kardexService.save(movement);
 
 
@@ -100,7 +101,7 @@ public class LoanService {
     }
 
 
-    public LoanEntity returnLoan(Long loanId,  boolean damaged, boolean irreparable) {
+    public LoanEntity returnLoan(Long loanId,  boolean damaged, boolean irreparable, String rut) {
         LoanEntity loan = loanRepository.findById(loanId)
                 .orElseThrow(() -> new RuntimeException("Préstamo no encontrado"));
 
@@ -118,16 +119,18 @@ public class LoanService {
         ToolsEntity tool = loan.getTool();
         if (damaged) {
             if (irreparable) {
-                toolsService.decommissionTool(tool.getId());
+                toolsService.decommissionTool(tool.getId(), rut);
                 damagePrice = tool.getReplacementValue();
             } else {
                 tool.setStatus(ToolStatus.EN_REPARACION);
 
                 KardexEntity reparacion = new KardexEntity();
                 reparacion.setType("REPARACION");
+                reparacion.setQuantity(1);
                 reparacion.setTool(loan.getTool());
                 reparacion.setDateTime(LocalDateTime.now());
                 reparacion.setLoan(loan);
+                reparacion.setUserRut(rut);
                 kardexService.save(reparacion);
 
                 damagePrice = tool.getRepairValue();
@@ -150,6 +153,7 @@ public class LoanService {
         devolucion.setQuantity(1);
         devolucion.setDateTime(LocalDateTime.now());
         devolucion.setLoan(loan);
+        devolucion.setUserRut(rut);
         kardexService.save(devolucion);
 
         return loanRepository.save(loan);

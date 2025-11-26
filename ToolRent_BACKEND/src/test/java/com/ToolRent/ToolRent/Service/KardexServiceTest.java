@@ -10,7 +10,7 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -26,203 +26,148 @@ public class KardexServiceTest {
 
     @BeforeEach
     void setUp() {
-        // Inicializa los @Mock y @InjectMocks
         MockitoAnnotations.openMocks(this);
     }
 
-    // --- save() ---
+    // ------------------ save() ------------------
     @Test
-    void testSaveKardex() {
+    void testSaveSingleMovement() {
         ToolsEntity tool = new ToolsEntity();
         tool.setId(1L);
         tool.setName("Martillo");
 
         KardexEntity movement = new KardexEntity();
-        movement.setId(10L);
-        movement.setType("Ingreso");
-        movement.setQuantity(3);
-        movement.setUserEmail("user@test.com");
+        movement.setType("INGRESO");
+        movement.setQuantity(5);
         movement.setDateTime(LocalDateTime.now());
         movement.setTool(tool);
 
         when(kardexRepository.save(movement)).thenReturn(movement);
 
-        KardexEntity result = kardexService.save(movement);
+        KardexEntity saved = kardexService.save(movement);
 
-        assertNotNull(result);
-        assertEquals("Ingreso", result.getType());
-        assertEquals(tool, result.getTool());
+        assertNotNull(saved);
+        assertEquals("INGRESO", saved.getType());
+        assertEquals(tool, saved.getTool());
         verify(kardexRepository, times(1)).save(movement);
     }
 
     @Test
-    void testSaveMultipleKardex() {
-        // Crear varias herramientas y movimientos
+    void testSaveMultipleMovements() {
         ToolsEntity tool1 = new ToolsEntity();
         tool1.setId(1L);
         tool1.setName("Taladro");
 
         ToolsEntity tool2 = new ToolsEntity();
         tool2.setId(2L);
-        tool2.setName("Martillo");
+        tool2.setName("Destornillador");
 
         KardexEntity m1 = new KardexEntity();
-        m1.setId(10L); m1.setTool(tool1); m1.setType("Ingreso"); m1.setQuantity(5); m1.setUserEmail("user1@test.com"); m1.setDateTime(LocalDateTime.now());
+        m1.setType("PRESTAMO"); m1.setQuantity(2); m1.setTool(tool1);
 
         KardexEntity m2 = new KardexEntity();
-        m2.setId(11L); m2.setTool(tool1); m2.setType("Egreso"); m2.setQuantity(2); m2.setUserEmail("user2@test.com"); m2.setDateTime(LocalDateTime.now());
+        m2.setType("DEVOLUCION"); m2.setQuantity(1); m2.setTool(tool1);
 
         KardexEntity m3 = new KardexEntity();
-        m3.setId(12L); m3.setTool(tool2); m3.setType("Ingreso"); m3.setQuantity(7); m3.setUserEmail("user3@test.com"); m3.setDateTime(LocalDateTime.now());
+        m3.setType("BAJA"); m3.setQuantity(1); m3.setTool(tool2);
 
-        // Mock del repository
         when(kardexRepository.save(m1)).thenReturn(m1);
         when(kardexRepository.save(m2)).thenReturn(m2);
         when(kardexRepository.save(m3)).thenReturn(m3);
 
-        // Guardar movimientos
-        KardexEntity r1 = kardexService.save(m1);
-        KardexEntity r2 = kardexService.save(m2);
-        KardexEntity r3 = kardexService.save(m3);
-
-        // Asserts
-        assertEquals(5, r1.getQuantity());
-        assertEquals("Egreso", r2.getType());
-        assertEquals(tool2, r3.getTool());
+        assertEquals(m1, kardexService.save(m1));
+        assertEquals(m2, kardexService.save(m2));
+        assertEquals(m3, kardexService.save(m3));
 
         verify(kardexRepository, times(1)).save(m1);
         verify(kardexRepository, times(1)).save(m2);
         verify(kardexRepository, times(1)).save(m3);
     }
-    // --- getMovementsByTool() ---
+
+    // ------------------ getMovementsByTool() ------------------
     @Test
-    void testGetMovementsByTool() {
+    void testGetMovementsByToolSingle() {
         ToolsEntity tool = new ToolsEntity();
-        tool.setId(2L);
-        tool.setName("Taladro");
+        tool.setId(1L);
 
         KardexEntity movement = new KardexEntity();
-        movement.setId(20L);
-        movement.setType("Egreso");
-        movement.setQuantity(2);
-        movement.setDateTime(LocalDateTime.now());
-        movement.setTool(tool);
+        movement.setType("INGRESO"); movement.setTool(tool);
 
-        List<KardexEntity> list = new ArrayList<>();
-        list.add(movement);
-
-        when(kardexRepository.findByTool(tool)).thenReturn(list);
+        when(kardexRepository.findByTool(tool)).thenReturn(List.of(movement));
 
         List<KardexEntity> result = kardexService.getMovementsByTool(tool);
 
         assertEquals(1, result.size());
-        assertEquals("Egreso", result.get(0).getType());
+        assertEquals("INGRESO", result.get(0).getType());
         verify(kardexRepository, times(1)).findByTool(tool);
     }
 
     @Test
     void testGetMovementsByToolMultiple() {
-        ToolsEntity tool1 = new ToolsEntity();
-        tool1.setId(1L);
-        tool1.setName("Taladro");
-
-        ToolsEntity tool2 = new ToolsEntity();
-        tool2.setId(2L);
-        tool2.setName("Martillo");
+        ToolsEntity tool = new ToolsEntity();
+        tool.setId(2L);
 
         KardexEntity m1 = new KardexEntity();
-        m1.setId(10L); m1.setTool(tool1); m1.setType("Ingreso"); m1.setQuantity(5); m1.setDateTime(LocalDateTime.now());
+        m1.setType("PRESTAMO"); m1.setTool(tool);
 
         KardexEntity m2 = new KardexEntity();
-        m2.setId(11L); m2.setTool(tool1); m2.setType("Egreso"); m2.setQuantity(2); m2.setDateTime(LocalDateTime.now());
+        m2.setType("DEVOLUCION"); m2.setTool(tool);
 
-        KardexEntity m3 = new KardexEntity();
-        m3.setId(12L); m3.setTool(tool2); m3.setType("Ingreso"); m3.setQuantity(7); m3.setDateTime(LocalDateTime.now());
+        when(kardexRepository.findByTool(tool)).thenReturn(Arrays.asList(m1, m2));
 
-        List<KardexEntity> tool1Movements = new ArrayList<>();
-        tool1Movements.add(m1);
-        tool1Movements.add(m2);
+        List<KardexEntity> movements = kardexService.getMovementsByTool(tool);
 
-        List<KardexEntity> tool2Movements = new ArrayList<>();
-        tool2Movements.add(m3);
-
-        when(kardexRepository.findByTool(tool1)).thenReturn(tool1Movements);
-        when(kardexRepository.findByTool(tool2)).thenReturn(tool2Movements);
-
-        List<KardexEntity> result1 = kardexService.getMovementsByTool(tool1);
-        List<KardexEntity> result2 = kardexService.getMovementsByTool(tool2);
-
-        assertEquals(2, result1.size());
-        assertEquals("Ingreso", result1.get(0).getType());
-        assertEquals("Egreso", result1.get(1).getType());
-
-        assertEquals(1, result2.size());
-        assertEquals("Ingreso", result2.get(0).getType());
-
-        verify(kardexRepository, times(1)).findByTool(tool1);
-        verify(kardexRepository, times(1)).findByTool(tool2);
+        assertEquals(2, movements.size());
+        assertEquals("PRESTAMO", movements.get(0).getType());
+        assertEquals("DEVOLUCION", movements.get(1).getType());
+        verify(kardexRepository, times(1)).findByTool(tool);
     }
 
-    // --- getMovementsByDateRange() ---
+    // ------------------ getMovementsByDateRange() ------------------
     @Test
-    void testGetMovementsByDateRange() {
+    void testGetMovementsByDateRangeSingle() {
         LocalDateTime start = LocalDateTime.now().minusDays(1);
         LocalDateTime end = LocalDateTime.now().plusDays(1);
 
         ToolsEntity tool = new ToolsEntity();
-        tool.setId(4L);
-        tool.setName("Compresor");
+        tool.setId(1L);
 
         KardexEntity movement = new KardexEntity();
-        movement.setId(30L);
-        movement.setType("Ingreso");
-        movement.setQuantity(7);
-        movement.setDateTime(LocalDateTime.now());
-        movement.setTool(tool);
+        movement.setType("INGRESO"); movement.setTool(tool);
 
-        List<KardexEntity> list = new ArrayList<>();
-        list.add(movement);
-
-        when(kardexRepository.findByDateTimeBetween(start, end)).thenReturn(list);
+        when(kardexRepository.findByDateTimeBetween(start, end)).thenReturn(List.of(movement));
 
         List<KardexEntity> result = kardexService.getMovementsByDateRange(start, end);
 
         assertEquals(1, result.size());
-        assertEquals("Ingreso", result.get(0).getType());
+        assertEquals("INGRESO", result.get(0).getType());
         verify(kardexRepository, times(1)).findByDateTimeBetween(start, end);
     }
 
     @Test
     void testGetMovementsByDateRangeMultiple() {
-        LocalDateTime now = LocalDateTime.now();
-        LocalDateTime start = now.minusDays(2);
-        LocalDateTime end = now.plusDays(2);
+        LocalDateTime start = LocalDateTime.now().minusDays(3);
+        LocalDateTime end = LocalDateTime.now();
 
-        ToolsEntity tool = new ToolsEntity();
-        tool.setId(1L);
-        tool.setName("Taladro");
+        ToolsEntity tool1 = new ToolsEntity(); tool1.setId(1L);
+        ToolsEntity tool2 = new ToolsEntity(); tool2.setId(2L);
 
-        KardexEntity m1 = new KardexEntity();
-        m1.setId(10L); m1.setTool(tool); m1.setType("Ingreso"); m1.setQuantity(5); m1.setDateTime(now.minusDays(1));
+        KardexEntity m1 = new KardexEntity(); m1.setType("INGRESO"); m1.setTool(tool1);
+        KardexEntity m2 = new KardexEntity(); m2.setType("PRESTAMO"); m2.setTool(tool2);
+        KardexEntity m3 = new KardexEntity(); m3.setType("DEVOLUCION"); m3.setTool(tool1);
 
-        KardexEntity m2 = new KardexEntity();
-        m2.setId(11L); m2.setTool(tool); m2.setType("Egreso"); m2.setQuantity(2); m2.setDateTime(now);
-
-        KardexEntity m3 = new KardexEntity();
-        m3.setId(12L); m3.setTool(tool); m3.setType("Ingreso"); m3.setQuantity(7); m3.setDateTime(now.plusDays(1));
-
-        List<KardexEntity> list = new ArrayList<>();
-        list.add(m1); list.add(m2); list.add(m3);
+        List<KardexEntity> list = Arrays.asList(m1, m2, m3);
 
         when(kardexRepository.findByDateTimeBetween(start, end)).thenReturn(list);
 
         List<KardexEntity> result = kardexService.getMovementsByDateRange(start, end);
 
         assertEquals(3, result.size());
-        assertEquals("Ingreso", result.get(0).getType());
-        assertEquals("Egreso", result.get(1).getType());
-        assertEquals("Ingreso", result.get(2).getType());
-
+        assertEquals("INGRESO", result.get(0).getType());
+        assertEquals("PRESTAMO", result.get(1).getType());
+        assertEquals("DEVOLUCION", result.get(2).getType());
         verify(kardexRepository, times(1)).findByDateTimeBetween(start, end);
     }
 }
+
+
