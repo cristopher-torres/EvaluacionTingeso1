@@ -29,6 +29,8 @@ class LoanServiceTest {
     @Mock
     private KardexService kardexService;
 
+    private String rut = "12.345.678-9";
+
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
@@ -57,7 +59,7 @@ class LoanServiceTest {
         doNothing().when(toolsService).loanTool(1L);
         when(loanRepository.save(any())).thenAnswer(i -> i.getArgument(0));
 
-        LoanEntity savedLoan = loanService.createLoan(loan);
+        LoanEntity savedLoan = loanService.createLoan(loan,rut);
 
         assertNotNull(savedLoan);
         assertEquals(200.0, savedLoan.getLoanPrice()); // 2 días * 100
@@ -72,7 +74,7 @@ class LoanServiceTest {
         loan.setScheduledReturnDate(LocalDate.now().plusDays(1));
 
         IllegalArgumentException ex = assertThrows(IllegalArgumentException.class,
-                () -> loanService.createLoan(loan));
+                () -> loanService.createLoan(loan, rut));
         assertTrue(ex.getMessage().contains("cliente"));
     }
 
@@ -104,7 +106,7 @@ class LoanServiceTest {
 
         // Ahora sí se lanza IllegalArgumentException por fecha inválida
         IllegalArgumentException ex = assertThrows(IllegalArgumentException.class,
-                () -> loanService.createLoan(loan));
+                () -> loanService.createLoan(loan, rut));
         assertTrue(ex.getMessage().contains("devolución no puede ser anterior"));
     }
 
@@ -131,7 +133,7 @@ class LoanServiceTest {
         doNothing().when(toolsService).returnTool(tool.getId());
         when(loanRepository.save(any())).thenAnswer(i -> i.getArgument(0));
 
-        LoanEntity returned = loanService.returnLoan(1L, false, false);
+        LoanEntity returned = loanService.returnLoan(1L, false, false, rut);
 
         assertTrue(returned.isDelivered());
         assertEquals(100.0, returned.getLoanPrice());
@@ -159,17 +161,17 @@ class LoanServiceTest {
         loan.setFine(0);
 
         when(loanRepository.findById(1L)).thenReturn(Optional.of(loan));
-        when(toolsService.decommissionTool(tool.getId())).thenReturn(tool);
+        when(toolsService.decommissionTool(tool.getId(), rut)).thenReturn(tool);
         when(loanRepository.save(any())).thenAnswer(i -> i.getArgument(0));
 
-        LoanEntity returned = loanService.returnLoan(1L, true, true);
+        LoanEntity returned = loanService.returnLoan(1L, true, true, rut);
 
         assertTrue(returned.isDelivered());
         assertEquals(300.0, returned.getDamagePrice());
         assertEquals(100.0 + 300.0, returned.getTotal());
         assertEquals("DEVUELTO", returned.getLoanStatus());
         verify(kardexService, times(1)).save(any(KardexEntity.class)); // solo devolución
-        verify(toolsService, times(1)).decommissionTool(tool.getId());
+        verify(toolsService, times(1)).decommissionTool(tool.getId(), rut);
     }
 
     @Test
@@ -195,7 +197,7 @@ class LoanServiceTest {
         when(loanRepository.findById(1L)).thenReturn(Optional.of(loan));
         when(loanRepository.save(any(LoanEntity.class))).thenAnswer(i -> i.getArgument(0));
 
-        LoanEntity returnedLoan = loanService.returnLoan(1L, true, false);
+        LoanEntity returnedLoan = loanService.returnLoan(1L, true, false, rut);
 
         assertTrue(returnedLoan.isDelivered());
         assertEquals("DEVUELTO", returnedLoan.getLoanStatus());
@@ -205,7 +207,7 @@ class LoanServiceTest {
         assertEquals(30.0 + 50.0, returnedLoan.getTotal()); // loanPrice + damagePrice
 
         verify(kardexService, times(2)).save(any(KardexEntity.class)); // reparación + devolución
-        verify(toolsService, never()).decommissionTool(anyLong());
+        verify(toolsService, never()).decommissionTool(anyLong(), eq(rut));
         verify(toolsService, never()).returnTool(anyLong());
     }
 

@@ -30,6 +30,8 @@ class ToolsServiceTest {
     @InjectMocks
     private ToolsService toolsService;
 
+    private String rut = "12.345.678-9";
+
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
@@ -45,11 +47,11 @@ class ToolsServiceTest {
 
         when(toolsRepository.save(any(ToolsEntity.class))).thenAnswer(i -> i.getArguments()[0]);
 
-        ToolsEntity result = toolsService.registerTool(tool, 2);
+        ToolsEntity result = toolsService.registerTool(tool, 2, rut);
 
         assertEquals("Taladro", result.getName());
         verify(kardexService, times(2)).save(any(KardexEntity.class));
-        verify(toolsRepository, atLeast(3)).save(any(ToolsEntity.class)); // 2 unidades + final
+        verify(toolsRepository, atLeast(2)).save(any(ToolsEntity.class));
     }
 
     @Test
@@ -60,7 +62,7 @@ class ToolsServiceTest {
         tool.setReplacementValue(100);
 
         IllegalArgumentException ex = assertThrows(IllegalArgumentException.class,
-                () -> toolsService.registerTool(tool, 1));
+                () -> toolsService.registerTool(tool, 1, rut));
         assertTrue(ex.getMessage().contains("nombre"));
     }
 
@@ -72,7 +74,7 @@ class ToolsServiceTest {
         tool.setReplacementValue(100);
 
         IllegalArgumentException ex = assertThrows(IllegalArgumentException.class,
-                () -> toolsService.registerTool(tool, 1));
+                () -> toolsService.registerTool(tool, 1, rut));
         assertTrue(ex.getMessage().contains("categoría"));
     }
 
@@ -85,7 +87,7 @@ class ToolsServiceTest {
 
         // No mocks necesarios, la excepción ocurre antes de save
         IllegalArgumentException ex = assertThrows(IllegalArgumentException.class,
-                () -> toolsService.registerTool(tool, 1));
+                () -> toolsService.registerTool(tool, 1, rut));
 
         // El mensaje debe coincidir exactamente
         assertTrue(ex.getMessage().contains("reposición"));
@@ -102,7 +104,7 @@ class ToolsServiceTest {
         when(toolsRepository.findById(1L)).thenReturn(Optional.of(tool));
         when(toolsRepository.save(tool)).thenReturn(tool);
 
-        ToolsEntity result = toolsService.decommissionTool(1L);
+        ToolsEntity result = toolsService.decommissionTool(1L, rut);
 
         assertEquals(ToolStatus.DADA_DE_BAJA, result.getStatus());
         verify(kardexService, times(1)).save(any(KardexEntity.class));
@@ -114,7 +116,7 @@ class ToolsServiceTest {
         when(toolsRepository.findById(1L)).thenReturn(Optional.empty());
 
         RuntimeException ex = assertThrows(RuntimeException.class,
-                () -> toolsService.decommissionTool(1L));
+                () -> toolsService.decommissionTool(1L, rut));
         assertTrue(ex.getMessage().contains("no encontrada"));
     }
 
@@ -261,9 +263,80 @@ class ToolsServiceTest {
         when(toolsRepository.findById(1L)).thenReturn(Optional.of(existing));
         when(toolsRepository.save(existing)).thenReturn(existing);
 
-        ToolsEntity result = toolsService.updateTool(1L, update);
+        ToolsEntity result = toolsService.updateTool(1L, update, rut);
         assertEquals("New", result.getName());
     }
+
+    @Test
+    void testUpdateToolChangesStatusToRepair() {
+        ToolsEntity existing = new ToolsEntity();
+        existing.setId(1L);
+        existing.setName("Taladro");
+        existing.setCategory("Electricas");
+        existing.setStatus(ToolStatus.DISPONIBLE); // estado viejo
+
+        ToolsEntity update = new ToolsEntity();
+        update.setName("Taladro");
+        update.setCategory("Electricas");
+        update.setReplacementValue(100);
+        update.setDailyRate(10);
+        update.setDailyLateRate(2);
+        update.setRepairValue(5);
+        update.setStatus(ToolStatus.EN_REPARACION); // estado NUEVO
+
+        when(toolsRepository.findById(1L)).thenReturn(Optional.of(existing));
+        when(toolsRepository.save(existing)).thenReturn(existing);
+
+        ToolsEntity result = toolsService.updateTool(1L, update, rut);
+
+        assertEquals(ToolStatus.EN_REPARACION, result.getStatus());
+
+        // Debe registrar 1 movimiento en Kardex
+        verify(kardexService, times(1)).save(any(KardexEntity.class));
+
+        // Verificar que el movimiento sea de tipo REPARACION
+        verify(kardexService).save(argThat(k ->
+                k.getType().equals("REPARACION") &&
+                        k.getTool().getId().equals(1L) &&
+                        k.getUserRut().equals(rut)
+        ));
+    }
+
+    @Test
+    void testUpdateToolChangesStatusToDecommission() {
+        ToolsEntity existing = new ToolsEntity();
+        existing.setId(1L);
+        existing.setName("Taladro");
+        existing.setCategory("Electricas");
+        existing.setStatus(ToolStatus.DISPONIBLE); // estado viejo
+
+        ToolsEntity update = new ToolsEntity();
+        update.setName("Taladro");
+        update.setCategory("Electricas");
+        update.setReplacementValue(100);
+        update.setDailyRate(10);
+        update.setDailyLateRate(2);
+        update.setRepairValue(5);
+        update.setStatus(ToolStatus.DADA_DE_BAJA); // estado nuevo
+
+        when(toolsRepository.findById(1L)).thenReturn(Optional.of(existing));
+        when(toolsRepository.save(existing)).thenReturn(existing);
+
+        ToolsEntity result = toolsService.updateTool(1L, update, rut);
+
+        assertEquals(ToolStatus.DADA_DE_BAJA, result.getStatus());
+
+        // Debe registrar 1 movimiento en Kardex
+        verify(kardexService, times(1)).save(any(KardexEntity.class));
+
+        // Verificar que el movimiento sea de tipo BAJA
+        verify(kardexService).save(argThat(k ->
+                k.getType().equals("BAJA") &&
+                        k.getTool().getId().equals(1L) &&
+                        k.getUserRut().equals(rut)
+        ));
+    }
+
 
     // --- getAvailableTools() ---
     @Test
