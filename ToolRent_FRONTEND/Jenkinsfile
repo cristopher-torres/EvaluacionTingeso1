@@ -19,7 +19,7 @@ pipeline {
                     script {
                         withDockerRegistry(credentialsId: 'docker-credentials') {
                             bat "docker build -t crisdocker10/toolrent-frontend:latest ."
-                            bat "docker push crisdocker10/toolrent-frontend:latest ."
+                            bat "docker push crisdocker10/toolrent-frontend:latest"
                         }
                     }
                 }
