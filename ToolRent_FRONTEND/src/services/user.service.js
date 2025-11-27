@@ -16,4 +16,8 @@ export const updateUserStatus = (userId, finePaid) => {
     return httpClient.put(`/api/users/${userId}/status?finePaid=${finePaid}`);
 }
 
-export default { getAllClients, createUser, get, updateUserStatus };
+export const updateUser = (userId, data) => {
+    return httpClient.put(`/api/users/${userId}`, data);
+}
+
+export default { getAllClients, createUser, get, updateUserStatus, updateUser };

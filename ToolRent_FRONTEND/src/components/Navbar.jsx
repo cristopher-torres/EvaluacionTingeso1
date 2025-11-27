@@ -11,15 +11,34 @@ import { useNavigate } from 'react-router-dom';
 import logo from "../assets/ToolRent_Logo.png";
 import Sidemenu from "./Sidemenu";
 import { useState } from 'react';
+import Menu from '@mui/material/Menu';
+import MenuItem from '@mui/material/MenuItem';
+import Avatar from '@mui/material/Avatar';
 
 function DesktopAppBar() {
   const { keycloak } = useKeycloak();
   const navigate = useNavigate();
   const [open, setOpen] = useState(false);
+  const [anchorEl, setAnchorEl] = useState(null);
 
   const toggleDrawer = (newOpen) => (event) => {
     setOpen(newOpen);
   };
+
+  const handleMenuOpen = (event) => {
+    setAnchorEl(event.currentTarget);
+  };
+
+  const handleMenuClose = () => {
+    setAnchorEl(null);
+  };
+
+  const handleLogout = () => {
+    keycloak.logout();
+    setAnchorEl(null);
+  };
+
+  const username = keycloak.tokenParsed?.preferred_username;
 
   return (
     <>
@@ -96,25 +115,28 @@ function DesktopAppBar() {
                 Inventario
               </Button>
 
-              {/* Login / Logout dinámico */}
+              {/* Imagen circular con menú desplegable */}
               {keycloak.authenticated ? (
-                <Button
-                  onClick={() => keycloak.logout()}
+                <IconButton
+                  onClick={handleMenuOpen}
                   sx={{
-                    my: 2,
-                    color: 'white',
-                    backgroundColor: 'rgba(255, 255, 255, 0.1)',
+                    my: 2, 
                     marginLeft: 2,
-                    borderRadius: 1,
-                    textTransform: 'none',
+                    borderRadius: '50%',
+                    width: 40,
+                    height: 40,
+                    backgroundColor: 'rgba(255, 255, 255, 0.1)', 
+                    display: 'flex', 
+                    alignItems: 'center',
+                    justifyContent: 'center',
                     '&:hover': {
                       backgroundColor: '#ffeb3b',
                       color: 'black',
-                    }
+                    },
                   }}
                 >
-                  Cerrar sesión
-                </Button>
+                  <Avatar alt={username} src="https://www.example.com/profile.jpg" />
+                </IconButton>
               ) : (
                 <Button
                   onClick={() => keycloak.login()}
@@ -141,9 +163,26 @@ function DesktopAppBar() {
 
       {/* Side menu */}
       <Sidemenu open={open} toggleDrawer={toggleDrawer} />
+
+      {/* Menu desplegable con nombre de usuario y opción de cerrar sesión */}
+      <Menu
+        anchorEl={anchorEl}
+        open={Boolean(anchorEl)}
+        onClose={handleMenuClose}
+        sx={{
+          '& .MuiMenu-paper': {
+            backgroundColor: '#1b5e20',
+            color: 'white',
+          },
+        }}
+      >
+        <MenuItem disabled>{username}</MenuItem>
+        <MenuItem onClick={handleLogout}>Cerrar sesión</MenuItem>
+      </Menu>
     </>
   );
 }
 
 export default DesktopAppBar;
+
 

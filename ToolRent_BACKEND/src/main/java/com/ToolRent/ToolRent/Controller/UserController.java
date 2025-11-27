@@ -42,5 +42,11 @@ public class UserController {
         userService.updateUserStatus(userId, finePaid);
         return ResponseEntity.ok("Estado del usuario actualizado correctamente");
     }
+
+    @PutMapping("/{userId}")
+    public ResponseEntity<UserEntity> updateUser(@PathVariable Long userId, @RequestBody UserEntity userDetails) {
+        UserEntity updatedUser = userService.updateUser(userId, userDetails);
+        return ResponseEntity.ok(updatedUser);
+    }
 }
 

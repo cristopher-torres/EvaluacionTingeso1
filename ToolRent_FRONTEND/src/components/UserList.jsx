@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { getAllClients } from "../services/user.service";
 import Table from "@mui/material/Table";
 import TableBody from "@mui/material/TableBody";
@@ -7,18 +8,20 @@ import TableContainer from "@mui/material/TableContainer";
 import TableHead from "@mui/material/TableHead";
 import TableRow from "@mui/material/TableRow";
 import Paper from "@mui/material/Paper";
-
+import Button from "@mui/material/Button";
+import EditIcon from "@mui/icons-material/Edit";
 
 const UserList = () => {
   const [users, setUsers] = useState([]);
+  const navigate = useNavigate();
 
   useEffect(() => {
-      getAllClients().then(res => setUsers(res.data));
-    }, []);
+    getAllClients().then((res) => setUsers(res.data));
+  }, []);
 
-   return (
+  return (
     <div>
-      <h2>Listado de Préstamos</h2>
+      <h2>Listado de Usuarios</h2>
       <TableContainer component={Paper}>
         <Table>
           <TableHead>
@@ -31,10 +34,11 @@ const UserList = () => {
               <TableCell>Email</TableCell>
               <TableCell>Numero de telefono</TableCell>
               <TableCell>Estado</TableCell>
+              <TableCell>Acciones</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
-            {users.map(user => (
+            {users.map((user) => (
               <TableRow key={user.id}>
                 <TableCell>{user.id}</TableCell>
                 <TableCell>{user.rut}</TableCell>
@@ -44,6 +48,16 @@ const UserList = () => {
                 <TableCell>{user.email}</TableCell>
                 <TableCell>{user.phoneNumber}</TableCell>
                 <TableCell>{user.status}</TableCell>
+                <TableCell>
+                  <Button
+                    variant="outlined"
+                    color="primary"
+                    startIcon={<EditIcon />}
+                    onClick={() => navigate(`/users/edit/${user.id}`)}
+                  >
+                    Editar
+                  </Button>
+                </TableCell>
               </TableRow>
             ))}
           </TableBody>
@@ -54,3 +68,4 @@ const UserList = () => {
 };
 
 export default UserList;
+

@@ -70,4 +70,23 @@ public class UserService {
         userRepository.save(user);
     }
 
+    public UserEntity updateUser(Long userId, UserEntity userDetails) {
+        UserEntity user = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+
+        // Actualizar los campos del usuario
+        user.setRut(userDetails.getRut());
+        user.setName(userDetails.getName());
+        user.setLastName(userDetails.getLastName());
+        user.setEmail(userDetails.getEmail());
+        user.setPhoneNumber(userDetails.getPhoneNumber());
+        user.setStatus(userDetails.getStatus());
+        user.setUsername(userDetails.getUsername());
+        user.setRole(userDetails.getRole());
+
+        // Guardar el usuario actualizado
+        UserEntity updatedUser = userRepository.save(user);
+        return updatedUser;
+    }
 }
+

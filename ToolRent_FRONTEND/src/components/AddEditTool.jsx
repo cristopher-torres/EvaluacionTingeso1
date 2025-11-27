@@ -136,8 +136,10 @@ const AddEditTool = () => {
             onChange={(e) => setCategory(e.target.value)}
             required
           >
-            <MenuItem value="Electricidad">Electricidad</MenuItem>
+            <MenuItem value="Herramientas Eléctricas">Herramientas Eléctricas</MenuItem>
+            <MenuItem value="Herramientas Manuales">Herramientas Manuales</MenuItem>
             <MenuItem value="Construcción">Construcción</MenuItem>
+            <MenuItem value="Carpintería">Carpintería</MenuItem>
             <MenuItem value="Jardinería">Jardinería</MenuItem>
           </TextField>
         </FormControl>

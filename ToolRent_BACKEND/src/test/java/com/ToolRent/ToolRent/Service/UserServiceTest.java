@@ -197,4 +197,54 @@ class UserServiceTest {
         verify(userRepository, times(1)).save(user);
     }
 
+    @Test
+    void testUpdateUser() {
+        // Crear un usuario inicial con algunos valores
+        UserEntity existingUser = new UserEntity();
+        existingUser.setId(1L);
+        existingUser.setRut("12345678");
+        existingUser.setName("Juan");
+        existingUser.setLastName("Pérez");
+        existingUser.setEmail("juan.perez@test.com");
+        existingUser.setPhoneNumber("123456789");
+        existingUser.setStatus("ACTIVO");
+        existingUser.setUsername("juanperez");
+        existingUser.setRole("USER");
+
+        // Detalles nuevos para actualizar
+        UserEntity updatedDetails = new UserEntity();
+        updatedDetails.setRut("87654321");
+        updatedDetails.setName("Juan Carlos");
+        updatedDetails.setLastName("Pérez García");
+        updatedDetails.setEmail("juancarlos.perez@test.com");
+        updatedDetails.setPhoneNumber("987654321");
+        updatedDetails.setStatus("ACTIVO");
+        updatedDetails.setUsername("juancarlosperez");
+        updatedDetails.setRole("ADMIN");
+
+
+        when(userRepository.findById(1L)).thenReturn(Optional.of(existingUser));
+
+
+        when(userRepository.save(any(UserEntity.class))).thenReturn(updatedDetails);
+
+
+        UserEntity result = userService.updateUser(1L, updatedDetails);
+
+        // Verificar que el usuario actualizado es el esperado
+        assertNotNull(result);
+        assertEquals("87654321", result.getRut());
+        assertEquals("Juan Carlos", result.getName());
+        assertEquals("Pérez García", result.getLastName());
+        assertEquals("juancarlos.perez@test.com", result.getEmail());
+        assertEquals("987654321", result.getPhoneNumber());
+        assertEquals("ACTIVO", result.getStatus());
+        assertEquals("juancarlosperez", result.getUsername());
+        assertEquals("ADMIN", result.getRole());
+
+        // Verificar que se llama al repositorio save
+        verify(userRepository, times(1)).save(any(UserEntity.class));
+    }
+
+
 }

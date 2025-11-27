@@ -31,7 +31,7 @@ export default function Sidemenu({ open, toggleDrawer }) {
 
         <Divider />
 
-        <ListItemButton onClick={() => navigate("/user/userRegistrer")}>
+        <ListItemButton onClick={() => navigate("/user/userRegister")}>
           <ListItemIcon><PersonAddIcon /></ListItemIcon>
           <ListItemText primary="Registrar un usuario" />
         </ListItemButton>
