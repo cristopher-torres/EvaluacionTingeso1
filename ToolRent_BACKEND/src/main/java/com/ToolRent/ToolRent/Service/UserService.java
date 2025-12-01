@@ -8,6 +8,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class UserService {
@@ -15,10 +16,17 @@ public class UserService {
     @Autowired
     private UserRepository userRepository;
 
-    // Guardar un usuario
     public UserEntity save(UserEntity user) {
+        // Verificar si el RUT ya está registrado
+        Optional<UserEntity> existingUser = userRepository.findByRut(user.getRut());
+        if (existingUser.isPresent()) {
+            throw new RuntimeException("El RUT ya está registrado.");
+        }
+
+        // Si no existe un RUT duplicado, guardamos el usuario
         return userRepository.save(user);
     }
+
 
     // Obtener todos los usuarios
     public List<UserEntity> findAll() {
