@@ -198,11 +198,11 @@ const ActiveLoanList = () => {
             <div style={{ minWidth: "300px" }}>
               <p><strong>Cliente:</strong> {loanReceipt.client?.rut}</p>
               <p><strong>Herramienta:</strong> {loanReceipt.tool?.name}</p>
-              <p><strong>Precio préstamo:</strong> ${loanReceipt.loanPrice?.toFixed(2) || '0.00'}</p>
-              <p><strong>Multa por atraso:</strong> ${loanReceipt.fine?.toFixed(2) || '0.00'}</p>
-              <p><strong>Daño:</strong> ${loanReceipt.damagePrice?.toFixed(2) || '0.00'}</p>
-              <p><strong>Total multa + daño:</strong> ${loanReceipt.fineTotal?.toFixed(2) || '0.00'}</p>
-              <p><strong>Total a pagar:</strong> ${loanReceipt.total?.toFixed(2) || '0.00'}</p>
+              <p><strong>Precio préstamo:</strong> ${loanReceipt.loanPrice || '0'}</p>
+              <p><strong>Multa por atraso:</strong> ${loanReceipt.fine || '0'}</p>
+              <p><strong>Daño:</strong> ${loanReceipt.damagePrice || '0'}</p>
+              <p><strong>Total multa + daño:</strong> ${loanReceipt.fineTotal || '0'}</p>
+              <p><strong>Total a pagar:</strong> ${loanReceipt.total || '0'}</p>
 
               {loanReceipt.fineTotal > 0 ? (
                 <Box display="flex" flexDirection="column" alignItems="center" mt={2}>

@@ -185,7 +185,7 @@ public class LoanService {
         return loanRepository.findActiveLoansByDateRange(startDate, endDate);
     }
 
-    @Scheduled(cron = "0 0 0 * * ?") // todos los días a medianoche
+    @Scheduled(cron = "0 0 0 * * ?", zone = "America/Santiago") // todos los días a medianoche
     @Transactional
     public void updateOverdueLoans() {
         LocalDate today = LocalDate.now();

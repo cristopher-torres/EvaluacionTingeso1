@@ -47,6 +47,7 @@ const UnpaidLoansPage = () => {
               <TableCell>RUT</TableCell>
               <TableCell>Email</TableCell>
               <TableCell>Teléfono</TableCell>
+              <TableCell>Deuda</TableCell>
               <TableCell>Acción</TableCell>
             </TableRow>
           </TableHead>
@@ -58,6 +59,7 @@ const UnpaidLoansPage = () => {
                 <TableCell>{loan.client?.rut}</TableCell>
                 <TableCell>{loan.client?.email}</TableCell>
                 <TableCell>{loan.client?.phoneNumber}</TableCell>
+                <TableCell>${loan.fineTotal}</TableCell>
                 <TableCell>
                   <Button
                     variant="contained"
